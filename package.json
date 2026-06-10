@@ -2,6 +2,7 @@
   "name": "open-sesame",
   "private": false,
   "workspaces": [
-    "apps/web"
+    "apps/web",
+    "apps/server"
   ]
 }
