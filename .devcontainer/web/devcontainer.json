@@ -1,0 +1,17 @@
+{
+  "name": "Open Sesame - Web",
+  "dockerComposeFile": "../../docker-compose.yml",
+  "service": "web",
+  "workspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "js/ts.tsdk.path": "node_modules/typescript/lib"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

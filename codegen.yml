@@ -1,9 +1,0 @@
-overwrite: true
-schema: "src/**/*.gql"
-documents: null
-generates:
-  src/types/schema.d.ts:
-    plugins:
-      - "typescript"
-      - "typescript-resolvers"
-      - "typescript-document-nodes"

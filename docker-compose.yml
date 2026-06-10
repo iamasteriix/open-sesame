@@ -1,0 +1,16 @@
+services:
+  base:
+    image: open-sesame
+    build:
+      context: .
+      target: development
+
+  server:
+    image: open-sesame
+    command: npm run dev --workspace=apps/services/gateway
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/server/node_modules
+    ports:
+      - "5000:5000"
