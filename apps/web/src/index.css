@@ -1,0 +1,33 @@
+:root {
+  /* Surface */
+  --colors-bgBase: #060606;
+  --colors-bgSurface: #090909;
+  --colors-bgElevated: #3a3a3a;
+  --colors-bgOverlay: #5a5a5a;
+
+  /* Text */
+  --colors-textPrimary: #eeeeee;
+  --colors-textSecondary: #9e9e9e;
+  --colors-textDisabled: #424242;
+  --colors-textInverse: #212121;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+html {
+  overflow-x: hidden;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--colors-bgBase);
+}
+
+p {
+  color: var(--colors-textPrimary);
+}

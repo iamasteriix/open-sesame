@@ -1,11 +1,7 @@
 {
   "name": "open-sesame",
   "private": false,
-  "scripts": {
-    "build": "npm run build --workspaces"
-  },
   "workspaces": [
-    "apps/web",
-    "apps/server"
+    "apps/web"
   ]
 }

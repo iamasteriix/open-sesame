@@ -2,7 +2,7 @@
   "name": "Open Sesame - Web",
   "dockerComposeFile": "../../docker-compose.yml",
   "service": "web",
-  "workspaceFolder": "/app",
+  "workspaceFolder": "/app/apps/web/",
   "customizations": {
     "vscode": {
       "settings": {
