@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction, } from "express";
-import { dbPool, redis, } from "../../config/index.js";
+import { dbPool } from "../../config/db.js";
+import { redis } from "../../config/redis.js";
 
 
 export const onHealthStatus = async (

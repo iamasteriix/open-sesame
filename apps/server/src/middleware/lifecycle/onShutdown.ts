@@ -1,5 +1,6 @@
 import type { Server } from "http";
-import { dbPool, redis, } from "../../config/index.js";
+import { dbPool } from "../../config/db.js";
+import { redis } from "../../config/redis.js";
 
 
 type ShutdownOptions = {

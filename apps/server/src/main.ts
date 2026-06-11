@@ -1,13 +1,15 @@
 import express from "express";
 import http from "http";
-import { env } from "./config/index.js";
-import { onStart, onReady, onShutdown, } from "./middleware/index.js";
+import { env } from "./config/env.js";
+import { onStart } from "./middleware/lifecycle/onStart.js";
+import { onReady } from "./middleware/lifecycle/onReady.js";
+import { onShutdown } from "./middleware/lifecycle/onShutdown.js";
 
 
 type AppInstance = {
   endpoint: string;
   port: number;
-  shutdown: () => void;
+  shutdown: () => Promise<void>;
 };
 
 

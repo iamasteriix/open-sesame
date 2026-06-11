@@ -1,7 +1,7 @@
 import main from './main.js';
 
 
-let onShutdown: () => void;
+let onShutdown: () => Promise<void>;
 
 
 (
