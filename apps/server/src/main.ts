@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
-import { env } from "./config";
-import { onStart, onReady, onShutdown, } from "./middleware";
+import { env } from "./config/index.js";
+import { onStart, onReady, onShutdown, } from "./middleware/index.js";
 
 
 type AppInstance = {

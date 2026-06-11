@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { json, urlencoded, } from "express";
-import { v1Router } from "../../routes";
+import { v1Router } from "../../routes/index.js";
 
 
 type StartParams = {

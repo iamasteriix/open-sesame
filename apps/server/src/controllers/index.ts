@@ -1,1 +1,1 @@
-export { signin } from "./auth/signin.controller";
+export { signinController } from "./auth/signin.controller.js";

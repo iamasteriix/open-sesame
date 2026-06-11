@@ -1,11 +1,7 @@
 import type { Request, Response, NextFunction, } from "express";
 
 
-type ControllerOptions = {
-}
-
-
-export const signin = (
+export const signinController = (
   request: Request,
   response: Response,
   next: NextFunction,
