@@ -1,6 +1,9 @@
 {
   "name": "open-sesame",
   "private": false,
+  "scripts": {
+    "dev:server": "doppler run -- docker compose up -d server"
+  },
   "workspaces": [
     "apps/web",
     "apps/server"

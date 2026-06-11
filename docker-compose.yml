@@ -7,20 +7,52 @@ services:
 
   server:
     image: open-sesame
+    environment:
+      PG_PASSWORD: ${PG_PASSWORD}
     command: npm run dev --workspace=apps/server
     volumes:
       - .:/app
-      - /app/node_modules
-      - /app/apps/server/node_modules
     ports:
       - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
-  "web":
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: opensesamedb
+      POSTGRES_USER: opensesame
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opensesame -d opensesamedb"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:8
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  web:
     image: open-sesame
     command: npm run dev --workspace=apps/web -- --host 0.0.0.0
     volumes:
       - .:/app
-      - /app/node_modules
-      - /app/apps/web/node_modules
     ports:
       - "3000:3000"
+
+volumes:
+  postgres_data:
+  redis_data:

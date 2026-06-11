@@ -7,7 +7,7 @@
   "author": "iamasteriix",
   "license": "ISC",
   "scripts": {
-    "dev": "tsx watch --env-file=.env.local src/index.ts",
+    "dev": "npx tsx watch --env-file=.env.local src/index.ts",
     "test": "echo 'Error: no test specified' && exit 1",
     "build": "tsc",
     "start": "node dist/index.js"
@@ -16,14 +16,16 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "~17.4.2",
-    "express": "~5.2.1"
+    "express": "~5.2.1",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
-    "tsx": "^4.22.4",
-    "typescript": "~6.0.3",
-    "@types/node": "^25.9.3",
-    "@types/express": "^5.0.6",
+    "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.19",
-    "@types/cookie-parser": "^1.4.7"
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.3",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.22.4",
+    "typescript": "~6.0.3"
   }
 }
