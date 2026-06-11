@@ -1,2 +1,2 @@
 export { env } from "./env.js";
-export { pool } from "./db.js";
+export { dbPool } from "./db.js";

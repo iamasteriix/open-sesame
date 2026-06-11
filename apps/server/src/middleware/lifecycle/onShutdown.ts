@@ -1,4 +1,5 @@
 import type { Server } from "http";
+import { dbPool } from "../../config/index.js";
 
 
 type ShutdownOptions = {
@@ -16,8 +17,14 @@ type ShutdownOptions = {
  */
 export const onShutdown = async ({ server }: ShutdownOptions): Promise<void> => {
   console.log('[System] 😴 Gracefully shutting down.');
+
+  // close db connection
+  await dbPool.end();
   
-  server.close(() => {
-    console.log('[HTTP] 📴 Server closed.');
+  await new Promise<void> (resolve => {
+    server.close(() => {
+      console.log('[HTTP] 📴 Server closed.');
+      resolve();
+    });
   });
 }

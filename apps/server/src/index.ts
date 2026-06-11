@@ -5,9 +5,9 @@ let onShutdown: () => void;
 
 
 (
-  () => {
+  async () => {
     try {
-      const { port, shutdown } = main();
+      const { port, shutdown } = await main();
       onShutdown = shutdown;
       console.log(`[System] 🚀 Server ready at port ${port}.`);
     } catch (error) {

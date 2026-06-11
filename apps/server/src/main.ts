@@ -11,11 +11,11 @@ type AppInstance = {
 };
 
 
-export default (): AppInstance => {
+export default async (): Promise<AppInstance> => {
   const app = express();
   const server = http.createServer(app);
 
-  onStart({ app, });                  // initialize application middleware
+  await onStart({ app, });            // initialize application middleware
   server.listen({ port: env.PORT, }); // start HTTP server
   onReady();                          // ready lifecycle
 

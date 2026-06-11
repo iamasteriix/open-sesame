@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { json, urlencoded, } from "express";
 import { v1Router } from "../../routes/index.js";
+import { dbPool } from "../../config/index.js";
 
 
 type StartParams = {
@@ -10,10 +11,16 @@ type StartParams = {
 
 /**
  * Configures and initializes Express application middleware and routes.
+ * 
+ * @async
  * @function onStart
  */
-export const onStart = ({ app }: StartParams): void => {
-  console.log('[Lifecycle] 🟡 Initializing middleware and sockets.');
+export const onStart = async ({ app }: StartParams): Promise<void> => {
+  console.log('[Lifecycle] 🟡 Initializing application.');
+
+  // connect to db
+  const client = await dbPool.connect();
+  client.release();
 
   // initialize middleware
   app.use(json());
