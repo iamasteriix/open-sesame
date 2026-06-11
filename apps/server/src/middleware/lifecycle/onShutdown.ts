@@ -1,5 +1,5 @@
 import type { Server } from "http";
-import { dbPool } from "../../config/index.js";
+import { dbPool, redis, } from "../../config/index.js";
 
 
 type ShutdownOptions = {
@@ -20,6 +20,7 @@ export const onShutdown = async ({ server }: ShutdownOptions): Promise<void> => 
 
   // close db connection
   await dbPool.end();
+  await redis.quit();
   
   await new Promise<void> (resolve => {
     server.close(() => {
