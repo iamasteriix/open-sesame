@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../lib/errors/errors.js';
 import { logger } from '../../config/logger.js';
-import { ErrorCodes } from '../../lib/errors/errorCodes.js';
+import { ErrorCodes } from "@open-sesame/common";
 
 
 /**

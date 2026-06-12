@@ -1,4 +1,4 @@
-import { ErrorCodes } from "./errorCodes.js";
+import { ErrorCodes } from "@open-sesame/common";
 
 
 export class AppError extends Error {

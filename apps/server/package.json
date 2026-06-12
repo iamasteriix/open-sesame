@@ -1,11 +1,9 @@
 {
   "name": "@open-sesame/server",
   "version": "0.1.0",
+  "private": false,
   "main": "index.ts",
   "type": "module",
-  "keywords": [],
-  "author": "iamasteriix",
-  "license": "ISC",
   "scripts": {
     "dev": "npx tsx watch --env-file=.env.local src/index.ts",
     "test": "echo 'Error: no test specified' && exit 1",
@@ -13,6 +11,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@open-sesame/common": "^0.1.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "~17.4.2",

@@ -6,7 +6,7 @@ export const ErrorCodes = {
   },
   unexpected: {
     code: 'UNEXPECTED_ERROR',
-    message: 'Unexpected',
+    message: 'Unexpected error',
   },
 
   // Auth
