@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { json, urlencoded, } from "express";
 import { dbPool } from "../../config/db.js";
+import { onRequestLogging } from "../logging/onRequestLogging.js";
+import { logger } from "../../config/logger.js";
 import v1Router from "../../routes/v1/index.js";
 
 
@@ -16,11 +18,14 @@ type StartParams = {
  * @function onStart
  */
 export const onStart = async ({ app }: StartParams): Promise<void> => {
-  console.log('[Lifecycle] 🟡 Initializing application.');
+  logger.info('Initializing application.');
 
   // connect to db
   const client = await dbPool.connect();
   client.release();
+
+  // register logging
+  app.use(onRequestLogging);
 
   // initialize middleware
   app.use(json());

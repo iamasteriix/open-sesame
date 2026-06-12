@@ -19,7 +19,7 @@ export default async (): Promise<AppInstance> => {
 
   await onStart({ app, });            // initialize application middleware
   server.listen({ port: env.PORT, }); // start HTTP server
-  onReady();                          // ready lifecycle
+  onReady({ app });                   // ready lifecycle
 
   return {
     endpoint: env.ENDPOINT,

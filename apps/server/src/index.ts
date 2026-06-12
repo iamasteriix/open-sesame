@@ -1,3 +1,4 @@
+import { logger } from './config/logger.js';
 import main from './main.js';
 
 
@@ -9,9 +10,12 @@ let onShutdown: () => Promise<void>;
     try {
       const { port, shutdown } = await main();
       onShutdown = shutdown;
-      console.log(`[System] 🚀 Server ready at port ${port}.`);
+      logger.info(`Server ready at port ${port}.`);
     } catch (error) {
-      console.error('❌ [System] Startup failed:', error);
+      logger.fatal(
+        { err: error }, // `pino` has special handling for the `err` keyword specifically
+        'Startup failed',
+      );
       process.exit(1);
     }
   }
@@ -19,7 +23,7 @@ let onShutdown: () => Promise<void>;
 
 
 const handleShutdown = async (signal: string): Promise<void> => {
-  console.log(`[System] 🛑 ${signal} received.`);
+  logger.info(`${signal} received.`);
   if (onShutdown) await onShutdown();
   process.exit(0);
 };
@@ -27,3 +31,19 @@ const handleShutdown = async (signal: string): Promise<void> => {
 
 process.on('SIGINT', () => handleShutdown('SIGINT'));
 process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+
+process.on('unhandledRejection', reason => {
+  logger.fatal(
+    { err: reason },
+    'Unhandled promise rejection',
+  );
+  process.exit(1);
+});
+
+process.on('uncaughtException', error => {
+  logger.fatal(
+    { err: error, },
+    'Uncaught exception',
+  );
+  process.exit(1);  // (You must exit after an uncaught exception)[https://node.readthedocs.io/en/latest/api/process/#event-uncaughtexception]
+});
