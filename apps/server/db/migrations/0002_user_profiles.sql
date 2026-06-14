@@ -1,0 +1,29 @@
+create table user_profiles (
+  id uuid not null default uuidv7(),
+  user_id uuid not null,
+  bio text null,
+  avatar_url text null,
+  location jsonb null,
+  timezone text null,
+  locale text null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  constraint user_profiles_pkey primary key (id),
+  constraint user_profiles_user_id_fkey foreign key (user_id) references users (id) on delete cascade,
+  constraint user_profiles_user_id_key unique (user_id),
+  constraint user_profiles_location_check check (
+    location is null or (
+      jsonb_typeof (location) = 'object'
+      and (location->>'city') is null or jsonb_typeof (location->'city') = 'string'
+      and (location->>'region_code') is null or jsonb_typeof (location->'region_code') = 'string'
+      and (location->>'country') is null or jsonb_typeof (location->'country') = '^[A-Z]{2}$'
+      and (location->>'postal') is null or jsonb_typeof (location->'postal') = 'string'
+      and (location->>'country_calling_code') is null or jsonb_typeof (location->'country_calling_code') = '^[0-9]{1,4}$'
+      and (location->>'currency') is null or jsonb_typeof (location->'currency') = '^[A-Z]{3}$'
+      and (location->>'asn') is null or jsonb_typeof (location->'asn') = '^[0-9]+$'
+      and (location->>'language') is null or jsonb_typeof (location->'language') = 'string'
+      and (location - 'city, region_code, country, postal, country_calling_code, currency, asn, language'::text[]) = '{}'::jsonb
+    )
+  )
+);
