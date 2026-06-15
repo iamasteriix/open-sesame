@@ -1,8 +1,10 @@
-create table oauth_clients (
+create table
+if not exists public.oauth_clients (
   id uuid not null default uuidv7(),
   client_id text not null,
   client_secret_hash text null,
   name text not null,
+  logo_url text null,
   owner_id uuid null,
   redirect_uris text[] not null default '{}',
   allowed_grants text[] not null default '{}',

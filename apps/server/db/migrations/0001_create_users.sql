@@ -1,4 +1,5 @@
-create table users (
+create table
+  if not exists public.users (
   id uuid not null default uuidv7(),
   email text not null,
   email_confirmed_at timestamptz null,
@@ -10,6 +11,7 @@ create table users (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   deleted_at timestamptz null,
+
   constraint users_pkey primary key (id),
   constraint users_email_key unique (email),
   constraint users_phone_key unique (phone),
@@ -22,5 +24,5 @@ create table users (
 
 
 create index users_deleted_at_idx
-on users (deleted_at)
-where deleted_at is not null;
+  on users (deleted_at)
+  where deleted_at is not null;

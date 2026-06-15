@@ -1,4 +1,5 @@
-create table credentials (
+create table
+if not exists public.credentials (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   provider text not null,

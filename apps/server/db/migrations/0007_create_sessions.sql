@@ -1,4 +1,5 @@
-create table sessions (
+create table
+if not exists public.sessions (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   credential_id uuid null,

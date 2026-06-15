@@ -1,4 +1,5 @@
-create table user_devices (
+create table
+if not exists public.user_devices (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   push_token text null,
