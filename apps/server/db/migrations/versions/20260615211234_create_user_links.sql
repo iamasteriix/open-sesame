@@ -1,5 +1,5 @@
 create table
-if not exists public.user_links (
+  if not exists public.user_links (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   url text not null,

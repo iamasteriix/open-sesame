@@ -23,6 +23,7 @@ create table
 );
 
 
-create index users_deleted_at_idx
+create index
+  if not exists users_deleted_at_idx
   on users (deleted_at)
   where deleted_at is not null;

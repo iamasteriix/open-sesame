@@ -12,14 +12,14 @@ export const env = {
 
   // Postgres
   PG_HOST: requiredEnvVar('PG_HOST'),
-  PG_PORT: requiredEnvVar('PG_HOST'),
+  PG_PORT: parseInt(requiredEnvVar('PG_PORT')),
   PG_DATABASE: requiredEnvVar('PG_DATABASE'),
   PG_USER: requiredEnvVar('PG_USER'),
   PG_PASSWORD: requiredEnvVar('PG_PASSWORD'),
 
   // Redis
   REDIS_HOST: requiredEnvVar('REDIS_HOST'),
-  REDIS_PORT: requiredEnvVar('REDIS_PORT'),
+  REDIS_PORT: parseInt(requiredEnvVar('REDIS_PORT')),
   REDIS_PASSWORD: requiredEnvVar('REDIS_PASSWORD'),
 
   // Logging

@@ -1,5 +1,5 @@
 create table
-if not exists public.connected_accounts (
+  if not exists public.connected_accounts (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   provider text not null,
@@ -18,5 +18,6 @@ if not exists public.connected_accounts (
 );
 
 
-create index connected_accounts_provider_idx
-on connected_accounts (provider, provider_user_id);
+create index
+  if not exists connected_accounts_provider_idx
+  on connected_accounts (provider, provider_user_id);

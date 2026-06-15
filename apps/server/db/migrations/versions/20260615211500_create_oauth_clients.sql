@@ -1,5 +1,5 @@
 create table
-if not exists public.oauth_clients (
+  if not exists public.oauth_clients (
   id uuid not null default uuidv7(),
   client_id text not null,
   client_secret_hash text null,
@@ -28,11 +28,13 @@ if not exists public.oauth_clients (
 );
 
 
-create index oauth_clients_client_id_idx
-on oauth_clients (client_id)
+create index
+  if not exists oauth_clients_client_id_idx
+  on oauth_clients (client_id)
 where revoked_at is null;
 
 
-create index oauth_clients_owner_id_idx
-on oauth_clients (owner_id)
+create index
+  if not exists oauth_clients_owner_id_idx
+  on oauth_clients (owner_id)
 where owner_id is not null;

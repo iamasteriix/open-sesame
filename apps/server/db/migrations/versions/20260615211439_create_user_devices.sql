@@ -1,5 +1,5 @@
 create table
-if not exists public.user_devices (
+  if not exists public.user_devices (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   push_token text null,
@@ -22,10 +22,12 @@ if not exists public.user_devices (
 );
 
 
-create index user_devices_user_id_idx
-on user_devices (user_id);
+create index
+  if not exists user_devices_user_id_idx
+  on user_devices (user_id);
 
 
-create index user_devices_push_token_idx
-on user_devices (push_token)
-where push_token is not null;
+create index
+  if not exists user_devices_push_token_idx
+  on user_devices (push_token)
+  where push_token is not null;

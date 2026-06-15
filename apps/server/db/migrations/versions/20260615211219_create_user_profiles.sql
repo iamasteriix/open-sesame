@@ -1,5 +1,5 @@
 create table
-if not exists public.user_profiles (
+  if not exists public.user_profiles (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   bio text null,
@@ -19,14 +19,14 @@ if not exists public.user_profiles (
   constraint user_profiles_location_check check (
     location is null or (
       jsonb_typeof (location) = 'object'
-      and (location->>'city') is null or jsonb_typeof (location->'city') = 'string'
-      and (location->>'region_code') is null or jsonb_typeof (location->'region_code') = 'string'
-      and (location->>'country') is null or location->>'country' ~ '^[A-Z]{2}$'
-      and (location->>'postal') is null or jsonb_typeof (location->'postal') = 'string'
-      and (location->>'country_calling_code') is null or location->>'country_calling_code' ~ '^[0-9]{1,4}$'
-      and (location->>'currency') is null or location->>'currency' ~ '^[A-Z]{3}$'
-      and (location->>'asn') is null or location->'asn' ~ '^[0-9]+$'
-      and (location->>'language') is null or location->>'language' ~ '^[a-z]{2,3}(-[A-Z]{2})?$'
+      and ((location->>'city') is null or jsonb_typeof (location->'city') = 'string')
+      and ((location->>'region_code') is null or jsonb_typeof (location->'region_code') = 'string')
+      and ((location->>'country') is null or location->>'country' ~ '^[A-Z]{2}$')
+      and ((location->>'postal') is null or jsonb_typeof (location->'postal') = 'string')
+      and ((location->>'country_calling_code') is null or location->>'country_calling_code' ~ '^[0-9]{1,4}$')
+      and ((location->>'currency') is null or location->>'currency' ~ '^[A-Z]{3}$')
+      and ((location->>'asn') is null or location->>'asn' ~ '^[0-9]+$')
+      and ((location->>'language') is null or location->>'language' ~ '^[a-z]{2,3}(-[A-Z]{2})?$')
       and (location - array['city', 'region_code', 'country', 'postal', 'country_calling_code', 'currency', 'asn', 'language']) = '{}'::jsonb
     )
   )
