@@ -25,8 +25,10 @@ create table
 );
 
 
--- partial index to accelerate queries for soft-deleted rows so planner can exclude them efficiently,
--- instead of indexing the entire column since it has low cardinality (mostly null rows)
+-- partial index on soft-deleted rows so planner can exclude them efficiently
+-- indexing the entire column would be inefficient since it has low cardinality (ie, mostly null rows)
+-- useful when querying soft-deleted rows
+-- regular lookup for active users would use the primary key or a sequential scan
 create index
   if not exists users_deleted_at_idx
   on public.users (deleted_at)

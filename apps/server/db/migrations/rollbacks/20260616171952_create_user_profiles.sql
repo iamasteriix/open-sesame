@@ -1,1 +1,1 @@
--- migrate down
+drop table if exists public.user_profiles;

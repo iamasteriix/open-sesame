@@ -28,31 +28,20 @@ create table
   ),
   constraint oauth_clients_grants_check check (
     allowed_grants <@ array['authorization_code', 'refresh_token', 'client_credentials', 'implicit']::text[]
-  ),
-  constraint oauth_clients_redirect_uris_check check (
-    jsonb_typeof(redirect_uris) = 'array'
-    and not exists (
-      select 1
-      from jsonb_array_elements(redirect_uris) as uri
-      where
-        jsonb_typeof(uri) != 'object'
-        or (uri->>'type') is null or length(trim(uri->>'type')) = 0
-        or (uri->>'label') is null or length(trim(uri->>'label')) = 0
-        or (uri->>'uri') is null or length(trim(uri->>'uri')) = 0
-    )
   )
 );
 
 
--- partial index for active clients by client_id
+-- primary lookup path during oauth flows
+-- non-null rows (revoked clients) are excluded from index entirely since they'll never be valid in an auth flow
 create index
   if not exists oauth_clients_client_id_idx
   on public.oauth_clients (client_id)
-where revoked_at is null;
+  where revoked_at is null;
 
 
--- index to speed queries by owner_id
+-- find all clients owned by a user (the dev)
 create index
   if not exists oauth_clients_owner_id_idx
   on public.oauth_clients (owner_id)
-where owner_id is not null;
+  where owner_id is not null;

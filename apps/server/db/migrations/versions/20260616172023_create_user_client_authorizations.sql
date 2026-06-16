@@ -6,7 +6,7 @@ create table
   id uuid not null default uuidv7(),
   user_id uuid not null,
   client_id uuid not null,
-  scopes text[] not null default '{}',
+  scopes text[] not null default '{}',            -- granted scopes by this user to the client
   granted_at timestamptz not null default now(),
   revoked_at timestamptz null,
 
@@ -15,6 +15,7 @@ create table
   constraint user_client_authorizations_client_id_fkey foreign key (client_id) references public.oauth_clients (id) on delete cascade,
   constraint user_client_authorizations_user_client_key unique (user_id, client_id)
 );
+
 
 -- covers lookups during token issuance to verify a user has authorized a client
 create index
