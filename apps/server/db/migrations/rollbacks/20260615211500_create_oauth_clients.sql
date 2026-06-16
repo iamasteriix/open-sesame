@@ -1,1 +1,0 @@
-drop table if exists public.oauth_clients;

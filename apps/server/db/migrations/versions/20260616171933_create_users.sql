@@ -1,13 +1,15 @@
+-- users: core identity table
+-- the foundation of the schema; all other tables reference this one
 create table
   if not exists public.users (
   id uuid not null default uuidv7(),
-  email text not null,
+  email text null,
   email_confirmed_at timestamptz null,
   phone text null,
   phone_confirmed_at timestamptz null,
-  display_name text null,
-  username text null,
-  role text not null default 'user'::text,
+  display_name text null,                         -- optional name shown in UI
+  username text not null,                         -- required unique handle longer than 3 non-space characters
+  role text not null default 'user'::text,        -- authorization role
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   deleted_at timestamptz null,
@@ -19,11 +21,13 @@ create table
   constraint users_role_check check (role in ('user', 'admin')),
   constraint users_phone_not_empty check (phone is null or length(trim(phone)) > 0),
   constraint users_username_check check (length(trim(username)) > 3),
-  constraint user_display_name_check check (display_name is null or length(trim(display_name)) > 0)
+  constraint users_display_name_check check (display_name is null or length(trim(display_name)) > 0)
 );
 
 
+-- partial index to accelerate queries for soft-deleted rows so planner can exclude them efficiently,
+-- instead of indexing the entire column since it has low cardinality (mostly null rows)
 create index
   if not exists users_deleted_at_idx
-  on users (deleted_at)
+  on public.users (deleted_at)
   where deleted_at is not null;
