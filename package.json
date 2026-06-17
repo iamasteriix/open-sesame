@@ -2,8 +2,11 @@
   "name": "open-sesame",
   "private": false,
   "scripts": {
+    "dev": "doppler run -- docker compose up -d",
     "dev:server": "doppler run -- docker compose up -d server",
-    "dev:build": "doppler run -- docker compose build"
+    "dev:build": "doppler run -- docker compose build",
+    "bash:server": "doppler run -- docker compose exec server bash",
+    "bash:psql": "doppler run -- docker compose exec postgres psql -U opensesame -d opensesamedb"
   },
   "workspaces": [
     "apps/web",
