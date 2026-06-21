@@ -20,10 +20,10 @@ export const requestMagicLink = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { email } = request.body;
+    const { username, email } = request.body;
     
     let user = await findUserByEmailOrPhone({ email, });
-    if (!user) user = await createUser({ email, });
+    if (!user) user = await createUser({ username, email, });
 
     const token = await issueMagicToken(user.id);
     await sendMagicLink({

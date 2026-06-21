@@ -12,5 +12,6 @@ export type RequestQueryMagicLink = Request<{}, {}, {}, {
 }>
 
 export type RequestBodyMagicLink = Request<{}, {}, {
+  username: string;
   email: string;
 }>
