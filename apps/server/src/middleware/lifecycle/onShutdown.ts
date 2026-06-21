@@ -4,7 +4,7 @@ import { redis } from "../../config/redis.js";
 import { logger } from "../../config/logger.js";
 
 
-type ShutdownOptions = {
+export type AppShutdownOptions = {
   server: Server;
 };
 
@@ -17,7 +17,7 @@ type ShutdownOptions = {
  * @param {Object} params - Parameters for shutting down the server
  * @param {Object} params.server - HTTP server instance
  */
-export const onShutdown = async ({ server }: ShutdownOptions): Promise<void> => {
+export const onShutdown = async ({ server }: AppShutdownOptions): Promise<void> => {
   logger.info('Gracefully shutting down.');
 
   // close db connection

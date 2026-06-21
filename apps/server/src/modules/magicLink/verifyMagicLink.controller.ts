@@ -1,0 +1,35 @@
+import type { Response, NextFunction } from "express";
+import type { RequestQueryMagicLink } from "./types.js";
+import { findUserbyId } from "../user/findUserById.js";
+import { consumeMagicToken } from "./consumeMagicToken.js";
+import { NotFoundError } from "../../lib/errors/errors.js";
+import { signAccessToken } from "../tokens/signAccessToken.js";
+import { issueRefreshToken } from "../tokens/issueRefreshToken.js";
+
+
+export const verifyMagicLink = async (
+  request: RequestQueryMagicLink,
+  response: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { token } = request.query;
+
+    const userId = await consumeMagicToken(token);
+    if (!userId) throw new NotFoundError('Magic link is invalid or expired');
+
+    const user = await findUserbyId(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    const accessToken = await signAccessToken({
+      subject: user.id,
+      role: user.role,
+    });
+    const refreshToken = await issueRefreshToken(user.id);
+
+    response.status(200).json({ accessToken, refreshToken, });
+
+  } catch (error) {
+    next(error);
+  }
+}

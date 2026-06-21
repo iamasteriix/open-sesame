@@ -3,10 +3,10 @@ import { dbPool } from "../../config/db.js";
 import { redis } from "../../config/redis.js";
 
 
-export const onHealthStatus = async (
-  request: Request,
+export const healthController = async (
+  _request: Request,
   response: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ): Promise<void> => {
   
   const result = await Promise.allSettled([

@@ -3,7 +3,7 @@ import { onError } from "../errors/onError.js";
 import { logger } from "../../config/logger.js";
 
 
-type ReadyParams = {
+export type AppReadyOptions = {
   app: Express;
 };
 
@@ -13,7 +13,7 @@ type ReadyParams = {
  * 
  * @function onReady
  */
-export const onReady = ({ app }: ReadyParams): void => {
+export const onReady = ({ app }: AppReadyOptions): void => {
   // do all the things
 
   logger.info('Server live and accepting connections.');

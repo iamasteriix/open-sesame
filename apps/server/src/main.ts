@@ -6,14 +6,14 @@ import { onReady } from "./middleware/lifecycle/onReady.js";
 import { onShutdown } from "./middleware/lifecycle/onShutdown.js";
 
 
-type AppInstance = {
+export type AppInstanceParams = {
   endpoint: string;
   port: number;
   shutdown: () => Promise<void>;
 };
 
 
-export default async (): Promise<AppInstance> => {
+export default async (): Promise<AppInstanceParams> => {
   const app = express();
   const server = http.createServer(app);
 

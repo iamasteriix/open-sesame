@@ -1,13 +1,13 @@
 import type { Express } from "express";
 import { json, urlencoded, } from "express";
-import { dbPool } from "../../config/db.js";
 import { onRequestLogging } from "../logging/onRequestLogging.js";
+import { dbPool } from "../../config/db.js";
 import { logger } from "../../config/logger.js";
 import { initKeys } from "../../config/keys.js";
-import v1Router from "../../routes/v1/index.js";
+import v1Router from "../../routes/v1.routes.js";
 
 
-type StartParams = {
+export type AppStartOptions = {
   app: Express;
 };
 
@@ -18,7 +18,7 @@ type StartParams = {
  * @async
  * @function onStart
  */
-export const onStart = async ({ app }: StartParams): Promise<void> => {
+export const onStart = async ({ app }: AppStartOptions): Promise<void> => {
   logger.info('Initializing application.');
 
   // connect to db

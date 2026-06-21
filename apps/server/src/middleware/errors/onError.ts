@@ -26,7 +26,7 @@ export const onError = (
   error: unknown,
   request: Request,
   response: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ): void => {
 
   if (error instanceof AppError) {
