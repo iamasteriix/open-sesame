@@ -20,8 +20,9 @@ export const confirmTotp = async (
     await saveTotpCredential({ userId, secret, });
 
     response.status(200).json({ message: 'TOTP enrolled successfully' });
+    return;
 
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }

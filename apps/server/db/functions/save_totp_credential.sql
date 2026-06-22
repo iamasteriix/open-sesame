@@ -12,9 +12,10 @@ begin
       user_id = p_user_id
       and type = 'totp'
   ) then
-    raise exception 'totp_already_enrolled'
+    raise exception 'totp_already_enrolled';
   end if;
 
+  -- add totp credential data
   insert
   into credentials (user_id, type, data)
   values (

@@ -22,8 +22,9 @@ export const enrollTotp = async (
     // secret is returned to the client temporarily - it is NOT persisted yet
     // persistence happens only after the user confirms a valid code in `/totp/confirm`
     response.status(200).json({ uri, secret, });
+    return;
     
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }

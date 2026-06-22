@@ -33,8 +33,9 @@ export const verifyTotp = async (
     const refreshToken = await issueRefreshToken(user.id);
     
     response.status(200).json({ accessToken, refreshToken, });
+    return;
 
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }

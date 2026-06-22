@@ -16,6 +16,10 @@ export type SaveTotpOptions = {
   secret: string;
 };
 
+export type RevokeTotpOptions = {
+  userId: string;
+};
+
 export type RequestBodyEnrollTotp = Request<{}, {}, {
   userId: string;
 }>;
@@ -29,4 +33,8 @@ export type RequestBodyConfirmTotp = Request<{}, {}, {
 export type RequestBodyVerifyTotp = Request<{}, {}, {
   userId: string;
   code: string;
+}>;
+
+export type RequestBodyRevokeTotp = Request<{}, {}, {
+  userId: string;
 }>;
