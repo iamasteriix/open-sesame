@@ -24,4 +24,5 @@ export const healthController = async (
   response
   .status(allHealthy ? 200 : 503)
   .json(health);
+  return;
 }

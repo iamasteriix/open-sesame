@@ -33,8 +33,9 @@ export const requestMagicLink = async (
     });
 
     response.status(202).json({ message: 'Magic link sent!' });
+    return;
 
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }

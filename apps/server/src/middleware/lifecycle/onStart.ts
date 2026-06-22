@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { json, urlencoded, } from "express";
+import { onLoadDbFunctions } from "../bootstrap/onLoadDbFunctions.js";
 import { onRequestLogging } from "../logging/onRequestLogging.js";
 import { dbPool } from "../../config/db.js";
 import { logger } from "../../config/logger.js";
@@ -24,6 +25,7 @@ export const onStart = async ({ app }: AppStartOptions): Promise<void> => {
   // connect to db
   const client = await dbPool.connect();
   client.release();
+  await onLoadDbFunctions();
 
   // initialize JWT keys
   await initKeys();

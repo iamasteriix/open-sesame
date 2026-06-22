@@ -7,4 +7,5 @@ export const signinController = (
   next: NextFunction,
 ): void => {
   response.status(200).json({ foo: 'Two is better than one, but I be skipping to three!' });
+  return;
 }

@@ -25,9 +25,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 
-const DB_DIR = resolve(__dirname, '../db');
-const MIGRATIONS_DIR = resolve(DB_DIR, 'migrations/versions');
-const ROLLBACKS_DIR = resolve(DB_DIR, 'migrations/rollbacks');
+const DB_DIR = resolve(__dirname, '../db/');
+const MIGRATIONS_DIR = resolve(DB_DIR, 'migrations/versions/');
+const ROLLBACKS_DIR = resolve(DB_DIR, 'migrations/rollbacks/');
 const SCHEMA_MIGRATIONS_SQL = resolve(DB_DIR, 'schema_migrations.sql');
 
 

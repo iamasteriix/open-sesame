@@ -19,6 +19,7 @@
     "express": "~5.2.1",
     "ioredis": "^5.11.1",
     "jose": "^6.2.3",
+    "node-email-verifier": "^4.0.0",
     "otplib": "^13.4.1",
     "pg": "^8.21.0",
     "pino": "^10.3.1",

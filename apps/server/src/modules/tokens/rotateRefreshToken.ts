@@ -5,12 +5,11 @@ import { redis } from "../../config/redis.js";
 
 
 /**
- * Generates a random refresh token and stores it in Redis with the associated user ID.
- * Token is stored with an expiration time equal to REFRESH_TOKEN_TTL_SECS.
+ * Rotates a refresh token by removing the old token and issuing a new one.
  *
- * @param {string} userId - User ID to associate with the refresh token.
- * @returns {Promise<string>} Hex-encoded random refresh token.
- * @throws {Error} If Redis set operation fails.
+ * @param {string} oldToken - Existing refresh token.
+ * @returns {Promise<RefreshTokenParams | null>} Object with userId and newRefreshToken, or null if token not found.
+ * @throws {Error} If Redis operations fail.
  */
 export const rotateRefreshToken = async (oldToken: string): Promise<RefreshTokenParams | null> => {
   const oldKey = `${REFRESH_TOKEN_PREFIX}${oldToken}`;
@@ -28,5 +27,5 @@ export const rotateRefreshToken = async (oldToken: string): Promise<RefreshToken
   return {
     userId,
     newRefreshToken: newToken,
-  }
+  };
 }

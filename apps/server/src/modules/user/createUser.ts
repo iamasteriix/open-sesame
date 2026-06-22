@@ -5,7 +5,7 @@ import { dbPool } from "../../config/db.js"
 /**
  * Creates a new user with a required username and optional email and phone.
  *
- * @param {CreateUserOptions} [input={}] - User creation options containing username and optional email and phone.
+ * @param {CreateUserOptions} input - User creation options containing username and optional email and phone.
  * @returns {Promise<UserOptions>} Created user with id, email, phone, username, display_name, role, and deleted_at.
  * @throws {Error} If database insert fails or violates constraints.
  */

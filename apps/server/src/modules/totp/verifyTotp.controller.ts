@@ -2,7 +2,7 @@ import type { Response, NextFunction } from "express";
 import type { RequestBodyVerifyTotp } from "./types.js";
 import { signAccessToken } from "../tokens/signAccessToken.js";
 import { issueRefreshToken } from "../tokens/issueRefreshToken.js";
-import { findUserbyId } from "../user/findUserById.js";
+import { findUserById } from "../user/findUserById.js";
 import { NotFoundError, UnauthorizedError, ValidationError } from "../../lib/errors/errors.js";
 import { getTotpSecret } from "./getTotpSecret.js";
 import { verifyTotpCode } from "./verifyTotpCode.js";
@@ -17,7 +17,7 @@ export const verifyTotp = async (
     const { userId, code, } = request.body;
     if (!userId || !code) throw new ValidationError('Missing required paramaters');
 
-    const user = await findUserbyId(userId);
+    const user = await findUserById(userId);
     if (!user) throw new NotFoundError('User not found');
 
     const secret = await getTotpSecret(userId);

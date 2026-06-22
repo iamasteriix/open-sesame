@@ -2,7 +2,7 @@ import type { UserOptions } from "./types.js";
 import { dbPool } from "../../config/db.js";
 
 
-export const findUserbyId = async (userId: string): Promise<UserOptions> => {
+export const findUserById = async (userId: string): Promise<UserOptions> => {
   const { rows } = await dbPool.query<UserOptions>({
       text: `
         select
