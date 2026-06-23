@@ -387,10 +387,7 @@ const main = async (): Promise<void> => {
     process.exit(1);
 
   } catch (error) {
-    logger.fatal(
-      { err: error, },
-      'Migration failed.'
-    );
+    logger.fatal({ err: error, }, 'Migration failed.');
     process.exit(1);
 
   } finally {

@@ -12,10 +12,8 @@ let onShutdown: () => Promise<void>;
       onShutdown = shutdown;
       logger.info(`Server ready at port ${port}.`);
     } catch (error) {
-      logger.fatal(
-        { err: error }, // `pino` has special handling for the `err` keyword specifically
-        'Startup failed',
-      );
+      // `pino` has special handling for the `err` keyword specifically
+      logger.fatal({ err: error }, 'Startup failed');
       process.exit(1);
     }
   }
@@ -30,19 +28,13 @@ const handleShutdown = async (signal: string): Promise<void> => {
 
 
 const handleUnhandledRejection = (reason: unknown) => {
-  logger.fatal(
-    { err: reason },
-    'Unhandled promise rejection',
-  );
+  logger.fatal({ err: reason }, 'Unhandled promise rejection');
   process.exit(1);
 }
 
 
 const handleUncaughtException = (error: unknown) => {
-  logger.fatal(
-    { err: error, },
-    'Uncaught exception',
-  );
+  logger.fatal({ err: error, }, 'Uncaught exception');
   process.exit(1);  // (You must exit after an uncaught exception)[https://node.readthedocs.io/en/latest/api/process/#event-uncaughtexception]
 }
 

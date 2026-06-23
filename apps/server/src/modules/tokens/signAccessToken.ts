@@ -1,7 +1,7 @@
 import type { AccessTokenPayload } from "./types.js";
 import { SignJWT } from "jose";
 import { env } from "../../config/env.js";
-import { getSigningKey } from "../../config/keys.js";
+import { getJWSigningKey } from "../../lib/jwtKeys/jwtKeys.js";
 import { ACCESS_TOKEN_TTL_SECS } from "../tokens/constants.js";
 
 
@@ -15,7 +15,7 @@ import { ACCESS_TOKEN_TTL_SECS } from "../tokens/constants.js";
  */
 export const signAccessToken = async (payload: AccessTokenPayload): Promise<string> => {
   const now = Math.floor(Date.now()/1000);
-  const signingKey = getSigningKey();
+  const signingKey = getJWSigningKey();
 
   const jwt = new SignJWT({ role: payload.role, })
     .setProtectedHeader({ alg: 'ES256' })

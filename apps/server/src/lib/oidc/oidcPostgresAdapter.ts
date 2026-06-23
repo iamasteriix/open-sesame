@@ -1,7 +1,8 @@
+import type { Adapter, AdapterPayload } from "oidc-provider";
 import { dbPool } from "../../config/db.js";
 
 
-export class OidcPostgresAdapter {
+export class OidcPostgresAdapter implements Adapter {
   private type: string;
 
   constructor (type: string) {
@@ -11,11 +12,11 @@ export class OidcPostgresAdapter {
 
   async upsert (
     id: string,
-    payload: any,
+    payload: AdapterPayload,
     expiresIn: number,
   ): Promise<void> {
 
-    const grantedAt = payload?.grantedAt;
+    const grantedAt = payload?.grantedAt ? Number(payload.grantedAt) : undefined;
     const grantedAtInMs = grantedAt ? new Date(grantedAt *1000) : null;
     const expiresAtInMs = expiresIn ? new Date(Date.now() + (expiresIn *1000)) : null;
 
@@ -32,6 +33,7 @@ export class OidcPostgresAdapter {
       values: [
         id,
         this.type,
+        JSON.stringify(payload),
         grantedAtInMs,
         expiresAtInMs
       ],
@@ -39,7 +41,7 @@ export class OidcPostgresAdapter {
   }
 
 
-  async find (id: string): Promise<object | undefined> {
+  async find (id: string): Promise<AdapterPayload | undefined> {
     const { rows, rowCount, } = await dbPool.query({
       name: 'find-oidc-model',
       // we only need non-expired states
@@ -108,7 +110,7 @@ export class OidcPostgresAdapter {
   }
 
 
-  async findByUserCode (userCode: string): Promise<object | undefined> {
+  async findByUserCode (userCode: string): Promise<AdapterPayload | undefined> {
     const { rows, rowCount, } = await dbPool.query({
       name: 'find-oidc-model-by-user-code',
       text: `
@@ -130,7 +132,7 @@ export class OidcPostgresAdapter {
   }
 
 
-  async findByUid (uid: string): Promise<object | undefined> {
+  async findByUid (uid: string): Promise<AdapterPayload | undefined> {
     const { rows, rowCount, } = await dbPool.query({
       name: 'find-oidc-model-by-user-code',
       text: `

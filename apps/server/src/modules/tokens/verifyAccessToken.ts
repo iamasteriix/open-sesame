@@ -1,7 +1,7 @@
 import type { AccessTokenPayload } from "./types.js";
 import { jwtVerify } from "jose";
 import { env } from "../../config/env.js";
-import { getVerifyKey } from "../../config/keys.js";
+import { getJWVerifyKey } from "../../lib/jwtKeys/jwtKeys.js";
 
 
 /**
@@ -13,7 +13,7 @@ import { getVerifyKey } from "../../config/keys.js";
  * @throws {Error} If token is invalid, verification fails, issuer/algorithm mismatch, or claims are missing/malformed.
  */
 export const verifyAccessToken = async (token: string): Promise<AccessTokenPayload> => {
-  const verifyKey = getVerifyKey();
+  const verifyKey = getJWVerifyKey();
 
   const { payload } = await jwtVerify(
     token,

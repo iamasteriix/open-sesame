@@ -45,7 +45,7 @@ export const onError = (
     return;
   }
 
-  logger.error({ error }, ErrorCodes.unexpected.message);
+  logger.error({ err: error }, ErrorCodes.unexpected.message);
 
   response.status(500).json({
     error: {
