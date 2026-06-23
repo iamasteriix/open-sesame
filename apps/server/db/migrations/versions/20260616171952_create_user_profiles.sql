@@ -1,7 +1,6 @@
 -- user_profiles: extended identity information
 -- one-to-one with users; separated to keep the users table lean
-create table
-  if not exists public.user_profiles (
+create table if not exists public.user_profiles (
   id uuid not null default uuidv7(),
   user_id uuid not null,                          -- one-to-one relation linking profile to user
   bio text null,

@@ -1,8 +1,7 @@
 -- sessions: active user sessions
 -- partitioned by range on created_at for future scalability
 -- token_id uniqueness is delegated to jose via the jti claim
-create table
-  if not exists public.sessions (
+create table if not exists public.sessions (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   token_id text not null,                         -- public-facing session token identifier
@@ -21,32 +20,27 @@ partition by range (created_at);
 
 
 -- find all sessions for a user
-create index
-  if not exists sessions_user_id_idx
-  on public.sessions (user_id);
+create index if not exists sessions_user_id_idx
+on public.sessions (user_id);
 
 
 -- resolve session by token_id quickly
-create index
-  if not exists sessions_token_id_idx
-  on public.sessions (token_id);
+create index if not exists sessions_token_id_idx
+on public.sessions (token_id);
 
 
 -- partial index to accelerate lookups of active sessions per user
-create index
-  if not exists sessions_active_idx
-  on public.sessions (user_id, expires_at)
-  where revoked_at is null;
+create index if not exists sessions_active_idx
+on public.sessions (user_id, expires_at)
+where revoked_at is null;
 
 
 -- default partition to accept rows outside defined ranges
-create table
-  if not exists public.sessions_default
+create table if not exists public.sessions_default
 partition of public.sessions default;
 
 
 -- partition for sessions created in calendar year 2026
-create table
-  if not exists public.sessions_2026
+create table if not exists public.sessions_2026
 partition of public.sessions
-  for values from ('2026-01-01') to ('2027-01-01');
+for values from ('2026-01-01') to ('2027-01-01');

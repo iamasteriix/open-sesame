@@ -1,7 +1,6 @@
 -- users: core identity table
 -- the foundation of the schema; all other tables reference this one
-create table
-  if not exists public.users (
+create table if not exists public.users (
   id uuid not null default uuidv7(),
   email text null,
   email_confirmed_at timestamptz null,
@@ -29,7 +28,6 @@ create table
 -- indexing the entire column would be inefficient since it has low cardinality (ie, mostly null rows)
 -- useful when querying soft-deleted rows
 -- regular lookup for active users would use the primary key or a sequential scan
-create index
-  if not exists users_deleted_at_idx
-  on public.users (deleted_at)
-  where deleted_at is not null;
+create index if not exists users_deleted_at_idx
+on public.users (deleted_at)
+where deleted_at is not null;

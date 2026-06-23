@@ -2,8 +2,7 @@
 -- represents third-party or first-party apps that authenticate users via open-sesame
 -- public clients (e.g. SPAs, mobile apps) have no secret; confidential clients do
 -- trust level (is_public) is set by the open-sesame operator at client registration time
-create table
-  if not exists public.oauth_clients (
+create table if not exists public.oauth_clients (
   id uuid not null default uuidv7(),              -- internal id for this client record
   client_id text not null,                        -- public-facing oauth identifier that can be rotated
   client_secret_hash text null,                   -- hashed client secret (null for public clients)
@@ -34,14 +33,12 @@ create table
 
 -- primary lookup path during oauth flows
 -- non-null rows (revoked clients) are excluded from index entirely since they'll never be valid in an auth flow
-create index
-  if not exists oauth_clients_client_id_idx
-  on public.oauth_clients (client_id)
-  where revoked_at is null;
+create index if not exists oauth_clients_client_id_idx
+on public.oauth_clients (client_id)
+where revoked_at is null;
 
 
 -- find all clients owned by a user (the dev)
-create index
-  if not exists oauth_clients_owner_id_idx
-  on public.oauth_clients (owner_id)
-  where owner_id is not null;
+create index if not exists oauth_clients_owner_id_idx
+on public.oauth_clients (owner_id)
+where owner_id is not null;

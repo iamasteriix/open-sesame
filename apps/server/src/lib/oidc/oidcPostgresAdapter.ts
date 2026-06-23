@@ -1,0 +1,153 @@
+import { dbPool } from "../../config/db.js";
+
+
+export class OidcPostgresAdapter {
+  private type: string;
+
+  constructor (type: string) {
+    this.type = type;
+  }
+
+
+  async upsert (
+    id: string,
+    payload: any,
+    expiresIn: number,
+  ): Promise<void> {
+
+    const grantedAt = payload?.grantedAt;
+    const grantedAtInMs = grantedAt ? new Date(grantedAt *1000) : null;
+    const expiresAtInMs = expiresIn ? new Date(Date.now() + (expiresIn *1000)) : null;
+
+    await dbPool.query({
+      name: 'upsert-oidc-model',
+      text: `
+        insert into oidc_models (id, type, payload, granted_at, expires_at)
+        values ($1, $2, $3, $4, $5)
+        on conflict on constraint oidc_models_pkey do update
+          set payload = excluded.payload,
+            granted_at = excluded.granted_at,
+            expires_at = excluded.expires_at
+      `,
+      values: [
+        id,
+        this.type,
+        grantedAtInMs,
+        expiresAtInMs
+      ],
+    });
+  }
+
+
+  async find (id: string): Promise<object | undefined> {
+    const { rows, rowCount, } = await dbPool.query({
+      name: 'find-oidc-model',
+      // we only need non-expired states
+      text: `
+        select payload, consumed_at
+        from oidc_models
+        where id = $1
+          and type = $2
+          and (expires_at is null or expires_at > now())
+      `,
+      values: [id, this.type],
+    });
+
+    if (!rowCount) return undefined;
+
+    // oidc provider expects consumed time as a unix timestamp inside the payload
+    const { payload, consumed_at, } = rows[0];
+    const consumed = consumed_at ? Math.floor(new Date(consumed_at).getTime() /1000) : undefined;
+
+    return { ...payload, consumed, };
+  }
+
+
+  // marks one-time-use models like authorization codes so the provider can detect subsequent attempts
+  async consume (id: string): Promise<void> {
+    await dbPool.query({
+      name: 'mark-oidc-model-consumed',
+      text: `
+        update oidc_models
+        set consumed_at = now()
+        where id = $1 and type = $2
+      `,
+      values: [id, this.type],
+    });
+  }
+
+
+  async destroy (id: string): Promise<void> {
+    await dbPool.query({
+      name: 'remove-oidc-model',
+      text: `
+        delete
+        from oidc_models
+        where id = $1 and type = $2
+      `,
+      values: [id, this.type],
+    });
+  }
+
+
+  /**
+   * Cleans up all models for a given grant given its id.
+   * Used, for example, when a user signs out or revokes consent.
+   * Doesn't require `this.type` because it deletes every single record associated with the grant id.
+   */
+  async revokeByGrantId (grantId: string): Promise<void> {
+    await dbPool.query({
+      name: 'revoke-oidc-model-by-grant-id',
+      text: `
+        delete
+        from oidc_models
+        where payload->>'grantId' = $1
+      `,
+      values: [grantId],
+    });
+  }
+
+
+  async findByUserCode (userCode: string): Promise<object | undefined> {
+    const { rows, rowCount, } = await dbPool.query({
+      name: 'find-oidc-model-by-user-code',
+      text: `
+        select payload, consumed_at
+        from oidc_models
+        where payload->>'userCode' = $1
+          and type = $2
+          and (expires_at is null or expires_at > now())
+      `,
+      values: [userCode, this.type],
+    });
+
+    if (!rowCount) return undefined;
+
+    const { payload, consumed_at, } = rows[0];
+    const consumed = consumed_at ? Math.floor(new Date(consumed_at).getTime() /1000) : undefined;
+
+    return { ...payload, consumed, };
+  }
+
+
+  async findByUid (uid: string): Promise<object | undefined> {
+    const { rows, rowCount, } = await dbPool.query({
+      name: 'find-oidc-model-by-user-code',
+      text: `
+        select payload, consumed_at
+        from oidc_models
+        where payload->>'uid' = $1
+          and type = $2
+          and (expires_at is null or expires_at > now())
+      `,
+      values: [uid, this.type],
+    });
+
+    if (!rowCount) return undefined;
+
+    const { payload, consumed_at, } = rows[0];
+    const consumed = consumed_at ? Math.floor(new Date(consumed_at).getTime() /1000) : undefined;
+
+    return { ...payload, consumed, };
+  }
+}

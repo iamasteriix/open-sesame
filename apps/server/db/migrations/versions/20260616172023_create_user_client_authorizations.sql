@@ -1,8 +1,7 @@
 -- user_client_authorizations: consent grants between users and oauth clients
 -- records which scopes a user has granted to a client and when
 -- a row exists only if the user has explicitly authorized the client
-create table
-  if not exists public.user_client_authorizations (
+create table if not exists public.user_client_authorizations (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   client_id uuid not null,
@@ -18,7 +17,6 @@ create table
 
 
 -- covers lookups during token issuance to verify a user has authorized a client
-create index
-  if not exists user_client_authorizations_user_id_idx
-  on public.user_client_authorizations (user_id)
-  where revoked_at is null;
+create index if not exists user_client_authorizations_user_id_idx
+on public.user_client_authorizations (user_id)
+where revoked_at is null;

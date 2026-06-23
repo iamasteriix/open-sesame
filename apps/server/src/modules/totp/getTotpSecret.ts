@@ -3,6 +3,7 @@ import { dbPool } from "../../config/db.js"
 
 export const getTotpSecret = async (userId: string): Promise<string | null> => {
   const { rows } = await dbPool.query<{ data: { secret: string } }>({
+    name: 'get-totp-secret',
     text: `
       select data
       from credentials

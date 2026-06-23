@@ -11,7 +11,9 @@ import { dbPool } from "../../config/db.js"
  */
 export const createUser = async (input: UserIdentifierOptions): Promise<UserOptions> => {
 
+  // naming prepared statement is probably fine here
   const { rows } = await dbPool.query<UserOptions>({
+    name: 'create-user',
     text: `
       insert
       into users (username, email, phone)

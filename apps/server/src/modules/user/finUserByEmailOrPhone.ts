@@ -4,6 +4,7 @@ import { dbPool } from "../../config/db.js";
 
 export const findUserByEmailOrPhone = async ({ email, phone, }: UserContactOptions): Promise<UserOptions | null> => {
   const { rows } = await dbPool.query<UserOptions>({
+    name: 'find-user-by-email-or-phone',
     text: `
       select
         id, email, phone, username,
