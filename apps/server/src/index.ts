@@ -1,45 +1,44 @@
 import { logger } from './config/logger.js';
-import main from './main.js';
+import createApp from './app.js';
 
 
 let onShutdown: () => Promise<void>;
 
 
-(
-  async () => {
-    try {
-      const { port, shutdown } = await main();
-      onShutdown = shutdown;
-      logger.info(`Server ready at port ${port}.`);
-    } catch (error) {
-      // `pino` has special handling for the `err` keyword specifically
-      logger.fatal({ err: error }, 'Startup failed');
-      process.exit(1);
-    }
-  }
-)();
-
-
 const handleShutdown = async (signal: string): Promise<void> => {
   logger.info(`${signal} received.`);
-  if (onShutdown) await onShutdown();
+  await onShutdown?.();
   process.exit(0);
 };
 
 
-const handleUnhandledRejection = (reason: unknown) => {
+const handleUnhandledRejection = async (reason: unknown) => {
+  // `pino` has special handling for the `err` keyword specifically
   logger.fatal({ err: reason }, 'Unhandled promise rejection');
+  await onShutdown?.();
   process.exit(1);
 }
 
 
-const handleUncaughtException = (error: unknown) => {
+const handleUncaughtException = async (error: unknown) => {
   logger.fatal({ err: error, }, 'Uncaught exception');
+  await onShutdown?.();
   process.exit(1);  // (You must exit after an uncaught exception)[https://node.readthedocs.io/en/latest/api/process/#event-uncaughtexception]
 }
 
 
-process.on('SIGINT', () => handleShutdown('SIGINT'));
-process.on('SIGTERM', () => handleShutdown('SIGTERM'));
-process.on('unhandledRejection', handleUnhandledRejection);
-process.on('uncaughtException', handleUncaughtException);
+// vroom, vroom, babyyy!
+const main = async () => {
+  const { port, shutdown } = await createApp();
+
+  onShutdown = shutdown;
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('unhandledRejection', handleUnhandledRejection);
+  process.on('uncaughtException', handleUncaughtException);
+
+  logger.info(`Server ready at port ${port}.`);
+}
+
+
+main();

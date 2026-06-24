@@ -23,8 +23,8 @@ export const createOidcProvider = async (): Promise<Provider> => {
     clients: [
       {
         client_id: 'dev-client',
-        client_secret: '****',
-        redirect_uris: [env.ENDPOINT],
+        client_secret: 'hush',
+        redirect_uris: ['http://localhost:5000/callback'],
         grant_types: ['authorization_code'],
         response_types: ['code'],
         id_token_signed_response_alg: 'ES256',
@@ -36,7 +36,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
       }
     },
     cookies: {
-      keys: ['****************************************************'],
+      keys: ['skibidi-dom-dom-dom-yes-yes-skibidi-dabudi'],
     },
     claims: {
       openid: ['sub'],
@@ -52,10 +52,10 @@ export const createOidcProvider = async (): Promise<Provider> => {
     },
   });
 
-  // not having this cost me a silly amount of time trying to find out why
+  // not having this cost me a egregious amount of time trying to find out why
   // the oidc provider kept breaking
-  provider.on('server_error', (_context, error) => {
-    logger.error({ err: error }, 'OIDC server error');
+  provider.on('server_error', (_, error) => {
+    logger.error({ err: error }, 'Bruh');
   });
 
   return provider;

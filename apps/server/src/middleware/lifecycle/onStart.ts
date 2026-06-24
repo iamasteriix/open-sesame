@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { json, urlencoded, } from "express";
 import { onLoadDbFunctions } from "../bootstrap/onLoadDbFunctions.js";
-import { onRequestLogging } from "../logging/onRequestLogging.js";
 import { dbPool } from "../../config/db.js";
 import { logger } from "../../config/logger.js";
 import { initJWTKeys } from "../../lib/jwtKeys/jwtKeys.js";
@@ -30,9 +29,6 @@ export const onStart = async ({ app }: AppStartOptions): Promise<void> => {
 
   // initialize JWT keys
   await initJWTKeys();
-
-  // register logging
-  app.use(onRequestLogging);
 
   // initialize middleware
   app.use(json());
