@@ -1,12 +1,12 @@
 import type { Response, NextFunction, } from "express";
-import type { RequestBodyConfirmTotp } from "./types.js";
+import type { ReqBodyConfirmTotp } from "./types.js";
 import { verifyTotpCode } from "./verifyTotpCode.js";
 import { UnauthorizedError, ValidationError } from "../../lib/errors/errors.js";
 import { saveTotpCredential } from "./saveTotpCredential.js";
 
 
 export const confirmTotp = async (
-  request: RequestBodyConfirmTotp,
+  request: ReqBodyConfirmTotp,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {

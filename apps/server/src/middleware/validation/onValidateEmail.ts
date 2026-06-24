@@ -3,11 +3,11 @@ import { ValidationError } from "../../lib/errors/errors.js";
 import emailValidator from "node-email-verifier";
 
 
-type RequestBodyValidateEmail = Request<{}, {}, { email: string }>;
+type ReqBodyValidateEmail = Request<{}, {}, { email: string }>;
 
 
 export const onValidateEmail = async (
-  request: RequestBodyValidateEmail,
+  request: ReqBodyValidateEmail,
   _response: Response,
   next: NextFunction,
 ): Promise<void> => {

@@ -7,11 +7,11 @@ export type MagicLinkParams = {
   endpoint: string;
 };
 
-export type RequestQueryMagicLink = Request<{}, {}, {}, {
+export type ReqQueryMagicLink = Request<{}, {}, {}, {
   token: string;
 }>
 
-export type RequestBodyMagicLink = Request<{}, {}, {
+export type ReqBodyMagicLink = Request<{}, {}, {
   username: string;
   email: string;
 }>

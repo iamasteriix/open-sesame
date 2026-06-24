@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../lib/errors/errors.js';
 import { logger } from '../../config/logger.js';
 import { ErrorCodes } from "@open-sesame/common";
@@ -10,6 +10,7 @@ import { ErrorCodes } from "@open-sesame/common";
  * @param {unknown} error - The error object caught by Express.
  * @param {Request} request - The Express request object.
  * @param {Response} response - The Express response object.
+ * @param {NextFunction} _ - The Express next middleware function.
  * @returns {void}
  * 
  * @note Typing `error` as `unknown` allows us to take advantage of TypeScript's
@@ -25,6 +26,7 @@ export const onError = (
   error: unknown,
   request: Request,
   response: Response,
+  _: NextFunction,
 ): void => {
 
   if (error instanceof AppError) {
@@ -51,4 +53,5 @@ export const onError = (
       message: ErrorCodes.internal.message,
     },
   });
+  return;
 }

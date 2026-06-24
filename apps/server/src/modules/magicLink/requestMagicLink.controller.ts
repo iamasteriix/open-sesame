@@ -1,5 +1,5 @@
 import type { Response, NextFunction } from "express";
-import type { RequestBodyMagicLink } from "./types.js";
+import type { ReqBodyMagicLink } from "./types.js";
 import { findUserByEmailOrPhone } from "../user/finUserByEmailOrPhone.js";
 import { createUser } from "../user/createUser.js";
 import { issueMagicToken } from "./issueMagicToken.js";
@@ -15,7 +15,7 @@ import { env } from "../../config/env.js";
  * @throws {Error} Passed to `next()` for centralized error handling via onError middleware.
  */
 export const requestMagicLink = async (
-  request: RequestBodyMagicLink,
+  request: ReqBodyMagicLink,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {

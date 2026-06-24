@@ -4,7 +4,6 @@ import { onLoadDbFunctions } from "../bootstrap/onLoadDbFunctions.js";
 import { dbPool } from "../../config/db.js";
 import { logger } from "../../config/logger.js";
 import { initJWTKeys } from "../../lib/jwtKeys/jwtKeys.js";
-import { createOidcProvider } from "../../lib/oidc/oidcProvider.js";
 import v1Router from "../../routes/v1.routes.js";
 
 
@@ -36,8 +35,4 @@ export const onStart = async ({ app }: AppStartOptions): Promise<void> => {
 
   // versioned api routes
   app.use('/v1', v1Router);
-
-  // mount oidc provider
-  const oidcProvider = await createOidcProvider();
-  app.use('/oidc', oidcProvider.callback());
 }

@@ -15,7 +15,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
   const signingKey = getJWSigningKey();
   const jwk = await exportJWK(signingKey);
 
-  const provider = new Provider(env.ENDPOINT, {
+  const provider = new Provider(`${env.ENDPOINT}/v1`, {
     adapter: OidcPostgresAdapter,
     jwks: {
       keys: [jwk],
@@ -24,7 +24,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
       {
         client_id: 'dev-client',
         client_secret: 'hush',
-        redirect_uris: ['http://localhost:5000/callback'],
+        redirect_uris: ['http://localhost:5000/v1/callback'],
         grant_types: ['authorization_code'],
         response_types: ['code'],
         id_token_signed_response_alg: 'ES256',
@@ -32,7 +32,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
     ],
     interactions: {
       url(_context, interaction) {
-        return `/interaction/${interaction.uid}`;
+        return `/v1/interaction/${interaction.uid}`;
       }
     },
     cookies: {
@@ -50,6 +50,9 @@ export const createOidcProvider = async (): Promise<Provider> => {
     enabledJWA: {
       idTokenSigningAlgValues: ['ES256'],
     },
+    features: {
+      devInteractions: { enabled: false, },
+    }
   });
 
   // not having this cost me a egregious amount of time trying to find out why

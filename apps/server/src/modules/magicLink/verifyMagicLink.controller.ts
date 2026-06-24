@@ -1,14 +1,14 @@
 import type { Response, NextFunction } from "express";
-import type { RequestQueryMagicLink } from "./types.js";
+import type { ReqQueryMagicLink } from "./types.js";
 import { findUserById } from "../user/findUserById.js";
 import { consumeMagicToken } from "./consumeMagicToken.js";
-import { NotFoundError } from "../../lib/errors/errors.js";
+import { NotFoundError, UnauthorizedError } from "../../lib/errors/errors.js";
 import { signAccessToken } from "../tokens/signAccessToken.js";
 import { issueRefreshToken } from "../tokens/issueRefreshToken.js";
 
 
 export const verifyMagicLink = async (
-  request: RequestQueryMagicLink,
+  request: ReqQueryMagicLink,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {
@@ -16,7 +16,7 @@ export const verifyMagicLink = async (
     const { token } = request.query;
 
     const userId = await consumeMagicToken(token);
-    if (!userId) throw new NotFoundError('Magic link is invalid or expired');
+    if (!userId) throw new UnauthorizedError('Magic link is invalid or expired');
 
     const user = await findUserById(userId);
     if (!user) throw new NotFoundError('User not found');

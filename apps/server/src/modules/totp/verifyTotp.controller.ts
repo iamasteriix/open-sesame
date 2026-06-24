@@ -1,5 +1,5 @@
 import type { Response, NextFunction } from "express";
-import type { RequestBodyVerifyTotp } from "./types.js";
+import type { ReqBodyVerifyTotp } from "./types.js";
 import { signAccessToken } from "../tokens/signAccessToken.js";
 import { issueRefreshToken } from "../tokens/issueRefreshToken.js";
 import { findUserById } from "../user/findUserById.js";
@@ -9,7 +9,7 @@ import { verifyTotpCode } from "./verifyTotpCode.js";
 
 
 export const verifyTotp = async (
-  request: RequestBodyVerifyTotp,
+  request: ReqBodyVerifyTotp,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {

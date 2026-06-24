@@ -20,21 +20,21 @@ export type RevokeTotpOptions = {
   userId: string;
 };
 
-export type RequestBodyEnrollTotp = Request<{}, {}, {
+export type ReqBodyEnrollTotp = Request<{}, {}, {
   userId: string;
 }>;
 
-export type RequestBodyConfirmTotp = Request<{}, {}, {
+export type ReqBodyConfirmTotp = Request<{}, {}, {
   userId: string;
   code: string;
   secret: string;
 }>;
 
-export type RequestBodyVerifyTotp = Request<{}, {}, {
+export type ReqBodyVerifyTotp = Request<{}, {}, {
   userId: string;
   code: string;
 }>;
 
-export type RequestBodyRevokeTotp = Request<{}, {}, {
+export type ReqBodyRevokeTotp = Request<{}, {}, {
   userId: string;
 }>;

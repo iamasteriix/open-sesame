@@ -1,11 +1,11 @@
 import type { Response, NextFunction, } from "express";
-import type { RequestBodyRevokeTotp } from "./types.js";
+import type { ReqBodyRevokeTotp } from "./types.js";
 import { ValidationError } from "../../lib/errors/errors.js";
 import { revokeTotpCredential } from "./revokeTotpCredential.js";
 
 
 export const revokeTotp = async (
-  request: RequestBodyRevokeTotp,
+  request: ReqBodyRevokeTotp,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {

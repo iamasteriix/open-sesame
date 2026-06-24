@@ -1,12 +1,12 @@
 import type { Response, NextFunction } from "express";
-import type { RequestBodyEnrollTotp } from "./types.js";
+import type { ReqBodyEnrollTotp } from "./types.js";
 import { NotFoundError, ValidationError } from "../../lib/errors/errors.js";
 import { findUserById } from "../user/findUserById.js";
 import { buildTotpUri } from "./buildTotpUri.js";
 
 
 export const enrollTotp = async (
-  request: RequestBodyEnrollTotp,
+  request: ReqBodyEnrollTotp,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {
