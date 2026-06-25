@@ -3,8 +3,8 @@ import { readFileSync, readdirSync, writeFileSync, } from "fs";
 import { resolve, dirname, join, } from "path";
 import { fileURLToPath } from "url";
 import { createHash } from "crypto";
-import { env } from "../src/config/env.js";
-import { logger } from "../src/config/logger.js";
+import { getDbClient } from "../lib/db.js";
+import { logger } from "../../src/config/logger.js";
 
 
 type MigrationFile = {
@@ -25,7 +25,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 
-const DB_DIR = resolve(__dirname, '../db/');
+const DB_DIR = resolve(__dirname, '../../db/');
 const MIGRATIONS_DIR = resolve(DB_DIR, 'migrations/versions/');
 const ROLLBACKS_DIR = resolve(DB_DIR, 'migrations/rollbacks/');
 const SCHEMA_MIGRATIONS_SQL = resolve(DB_DIR, 'schema_migrations.sql');
@@ -42,26 +42,6 @@ const SCHEMA_MIGRATIONS_SQL = resolve(DB_DIR, 'schema_migrations.sql');
 const bootstrap = async (client: Client): Promise<void> => {
   const sql = readFileSync(SCHEMA_MIGRATIONS_SQL, 'utf-8');
   await client.query(sql);
-}
-
-
-/**
- * Establishes and returns a connected PostgreSQL database client configured
- * from environment variables.
- *
- * @returns {Promise<Client>} A connected database client instance.
- */
-const getClient = async (): Promise<Client> => {
-  const client = new Client({
-    host: env.PG_HOST,
-    port: env.PG_PORT,
-    database: env.PG_DATABASE,
-    user: env.PG_USER,
-    password: env.PG_PASSWORD,
-  });
-
-  await client.connect();
-  return client;
 }
 
 
@@ -311,7 +291,7 @@ const rollbackMigration = async (
  */
 const main = async (): Promise<void> => {
   const command = process.argv[2] ?? 'up';
-  const client = await getClient();
+  const client = await getDbClient();
 
   try {
     await bootstrap(client);

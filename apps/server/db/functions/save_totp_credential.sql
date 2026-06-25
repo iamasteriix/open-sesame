@@ -1,5 +1,4 @@
-create
-or replace function save_totp_credential (
+create or replace function save_totp_credential (
   p_user_id uuid,
   p_secret text
 ) returns void as $$

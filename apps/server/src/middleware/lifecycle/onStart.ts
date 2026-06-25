@@ -4,7 +4,7 @@ import { onLoadDbFunctions } from "../bootstrap/onLoadDbFunctions.js";
 import { dbPool } from "../../config/db.js";
 import { logger } from "../../config/logger.js";
 import { initJWTKeys } from "../../lib/jwtKeys/jwtKeys.js";
-import v1Router from "../../routes/v1.routes.js";
+import router from "../../routes/index.js";
 
 
 export type AppStartOptions = {
@@ -34,5 +34,5 @@ export const onStart = async ({ app }: AppStartOptions): Promise<void> => {
   app.use(urlencoded());
 
   // versioned api routes
-  app.use('/v1', v1Router);
+  app.use('/', router);
 }

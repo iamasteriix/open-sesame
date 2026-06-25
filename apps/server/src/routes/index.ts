@@ -7,15 +7,15 @@ import oidcRouter from "../modules/oidc/routes.js";
 import interactionRouter from "../modules/interaction/routes.js";
 
 
-const v1Router = Router();
+const router = Router();
 
 
-v1Router.use('/diagnostics', diagnosticsRouter);
-v1Router.use('/user', userRouter);
-v1Router.use('/magic-link', magicLinkRouter);
-v1Router.use('/totp', totpRouter);
-v1Router.use('/oidc', oidcRouter);
-v1Router.use('/interaction', interactionRouter);
+router.use('/diagnostics', diagnosticsRouter);
+router.use('/user', userRouter);
+router.use('/magic-link', magicLinkRouter);
+router.use('/totp', totpRouter);
+router.use('/oidc', oidcRouter);
+router.use('/interaction', interactionRouter);
 
 
-export default v1Router;
+export default router;

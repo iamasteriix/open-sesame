@@ -15,7 +15,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
   const signingKey = getJWSigningKey();
   const jwk = await exportJWK(signingKey);
 
-  const provider = new Provider(`${env.ENDPOINT}/v1`, {
+  const provider = new Provider(env.ENDPOINT, {
     adapter: OidcPostgresAdapter,
     jwks: {
       keys: [jwk],
@@ -24,7 +24,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
       {
         client_id: 'dev-client',
         client_secret: 'hush',
-        redirect_uris: ['http://localhost:5000/v1/callback'],
+        redirect_uris: ['http://localhost:5000/callback'],
         grant_types: ['authorization_code'],
         response_types: ['code'],
         id_token_signed_response_alg: 'ES256',
@@ -32,7 +32,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
     ],
     interactions: {
       url(_context, interaction) {
-        return `/v1/interaction/${interaction.uid}`;
+        return `/interaction/${interaction.uid}`;
       }
     },
     cookies: {

@@ -1,5 +1,4 @@
-create
-or replace function revoke_totp_credential (p_user_id uuid)
+create or replace function revoke_totp_credential (p_user_id uuid)
 returns void as $$
 begin
   -- check that user already has credential
