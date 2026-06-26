@@ -1,4 +1,5 @@
 import type { Request } from "express";
+import type { Grant } from "oidc-provider";
 
 
 export type ReqParamsGetInteraction = Request<{ uid: string }>;
@@ -18,3 +19,6 @@ export type ReqArgsMagicLinkInteraction = Request<
   unknown,
   { token: string, }
 >;
+
+export type OidcGrantType = Grant | undefined;
+export type OidcMissingScopesType = string[] | undefined;

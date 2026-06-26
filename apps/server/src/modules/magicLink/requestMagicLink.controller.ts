@@ -32,7 +32,7 @@ export const requestMagicLink = async (
       endpoint: env.ENDPOINT,
     });
 
-    response.status(202).json({ message: 'Magic link sent!' });
+    response.status(202).json({ message: 'Magic link sent!', token, });
     return;
 
   } catch (error) {

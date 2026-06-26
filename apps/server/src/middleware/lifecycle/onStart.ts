@@ -1,10 +1,11 @@
 import type { Express } from "express";
 import { json, urlencoded, } from "express";
+import cookieParser from "cookie-parser";
 import { onLoadDbFunctions } from "../bootstrap/onLoadDbFunctions.js";
 import { dbPool } from "../../config/db.js";
 import { logger } from "../../config/logger.js";
 import { initJWTKeys } from "../../lib/jwtKeys/jwtKeys.js";
-import router from "../../routes/index.js";
+import createRouter from "../../routes/index.js";
 
 
 export type AppStartOptions = {
@@ -29,10 +30,12 @@ export const onStart = async ({ app }: AppStartOptions): Promise<void> => {
   // initialize JWT keys
   await initJWTKeys();
 
-  // initialize middleware
+  // wire up middleware
+  app.use(cookieParser());
   app.use(json());
   app.use(urlencoded());
 
-  // versioned api routes
+  // routing
+  const router = await createRouter();
   app.use('/', router);
 }

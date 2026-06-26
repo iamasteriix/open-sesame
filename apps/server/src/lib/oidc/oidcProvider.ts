@@ -52,6 +52,12 @@ export const createOidcProvider = async (): Promise<Provider> => {
     },
     features: {
       devInteractions: { enabled: false, },
+    },
+    findAccount: async (_, id) => {
+      return {
+        accountId: id,
+        claims: async () => ({ sub: id, }),
+      };
     }
   });
 
