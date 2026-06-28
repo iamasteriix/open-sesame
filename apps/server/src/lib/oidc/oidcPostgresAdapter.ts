@@ -134,7 +134,7 @@ export class OidcPostgresAdapter implements Adapter {
 
   async findByUid (uid: string): Promise<AdapterPayload | undefined> {
     const { rows, rowCount, } = await dbPool.query({
-      name: 'find-oidc-model-by-user-code',
+      name: 'find-oidc-model-by-uid',
       text: `
         select payload, consumed_at
         from oidc_models
