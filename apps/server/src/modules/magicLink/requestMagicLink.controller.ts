@@ -1,6 +1,6 @@
 import type { Response, NextFunction } from "express";
 import type { ReqBodyMagicLink } from "./types.js";
-import { findUserByEmailOrPhone } from "../user/finUserByEmailOrPhone.js";
+import { findUserByEmail } from "../user/finUserByEmail.js";
 import { createUser } from "../user/createUser.js";
 import { issueMagicToken } from "./issueMagicToken.js";
 import { sendMagicLink } from "./sendMagicLink.js";
@@ -22,7 +22,7 @@ export const requestMagicLink = async (
   try {
     const { username, email } = request.body;
     
-    let user = await findUserByEmailOrPhone({ email, });
+    let user = await findUserByEmail(email);
     if (!user) user = await createUser({ username, email, });
 
     const token = await issueMagicToken(user.id);
@@ -32,7 +32,7 @@ export const requestMagicLink = async (
       endpoint: env.ENDPOINT,
     });
 
-    response.status(202).json({ message: 'Magic link sent!', token, });
+    response.status(202).json({ message: 'Magic link sent!', });
     return;
 
   } catch (error) {

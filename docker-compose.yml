@@ -24,7 +24,10 @@ services:
         condition: service_healthy
 
   postgres:
-    image: postgres:18
+    build:
+      context: .
+      target: postgres
+    command: postgres -c shared_preload_libraries=pg_cron -c cron.database_name=opensesamedb
     environment:
       POSTGRES_DB: opensesamedb
       POSTGRES_USER: opensesame

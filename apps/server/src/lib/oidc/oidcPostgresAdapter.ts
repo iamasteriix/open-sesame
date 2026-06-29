@@ -42,26 +42,8 @@ export class OidcPostgresAdapter implements Adapter {
 
 
   async find (id: string): Promise<AdapterPayload | undefined> {
-    const { rows, rowCount, } = await dbPool.query({
-      name: 'find-oidc-model',
-      // we only need non-expired states
-      text: `
-        select payload, consumed_at
-        from oidc_models
-        where id = $1
-          and type = $2
-          and (expires_at is null or expires_at > now())
-      `,
-      values: [id, this.type],
-    });
-
-    if (!rowCount) return undefined;
-
-    // oidc provider expects consumed time as a unix timestamp inside the payload
-    const { payload, consumed_at, } = rows[0];
-    const consumed = consumed_at ? Math.floor(new Date(consumed_at).getTime() /1000) : undefined;
-
-    return { ...payload, consumed, };
+    if (this.type === 'Client') return this.findClient(id);
+    return this.findModel(id);
   }
 
 
@@ -122,11 +104,10 @@ export class OidcPostgresAdapter implements Adapter {
       `,
       values: [userCode, this.type],
     });
-
     if (!rowCount) return undefined;
 
     const { payload, consumed_at, } = rows[0];
-    const consumed = consumed_at ? Math.floor(new Date(consumed_at).getTime() /1000) : undefined;
+    const consumed = consumed_at ? Math.floor(new Date(consumed_at).getTime() /1000) : undefined; // oidc provider expects consumed time as a unix timestamp inside the payload
 
     return { ...payload, consumed, };
   }
@@ -144,7 +125,57 @@ export class OidcPostgresAdapter implements Adapter {
       `,
       values: [uid, this.type],
     });
+    if (!rowCount) return undefined;
 
+    const { payload, consumed_at, } = rows[0];
+    const consumed = consumed_at ? Math.floor(new Date(consumed_at).getTime() /1000) : undefined;
+
+    return { ...payload, consumed, };
+  }
+
+
+  // query `oauth_clients` specifically
+  private async findClient (id: string): Promise<AdapterPayload | undefined> {
+    const { rows, rowCount } = await dbPool.query({
+      name: 'find-oauth-client',
+      text: `
+        select
+          client_id,
+          redirect_uris,
+          allowed_grants, allowed_scopes,
+          is_public
+        from oauth_clients
+        where client_id = $1
+          and revoked_at is null
+      `,
+      values: [id],
+    });
+    if (!rowCount) return undefined;
+
+    return {
+      client_id: rows[0].client_id,
+      redirect_uris: rows[0].redirect_uris,
+      grant_types: rows[0].allowed_grants,
+      scope: rows[0].allowed_scopes.join(' '),
+      token_endpoint_auth_method: rows[0].is_public ? 'none' : 'client_secret_basic',
+      id_token_signed_response_alg: 'ES256',
+    };
+  }
+
+
+  // query every other model
+  private async findModel (id: string): Promise<AdapterPayload | undefined> {
+    const { rows, rowCount, } = await dbPool.query({
+      name: 'find-oidc-model',
+      text: `
+        select payload, consumed_at
+        from oidc_models
+        where id = $1
+          and type = $2
+          and (expires_at is null or expires_at > now())
+      `,
+      values: [id, this.type],
+    });
     if (!rowCount) return undefined;
 
     const { payload, consumed_at, } = rows[0];

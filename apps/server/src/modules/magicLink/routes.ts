@@ -6,8 +6,8 @@ import { onValidateEmail } from "../../middleware/validation/onValidateEmail.js"
 
 const magicLinkRouter = Router();
 
-magicLinkRouter.get('/verify', verifyMagicLink);
 magicLinkRouter.post('/request', onValidateEmail, requestMagicLink);
+magicLinkRouter.get('/verify', verifyMagicLink);
 
 
 export default magicLinkRouter;

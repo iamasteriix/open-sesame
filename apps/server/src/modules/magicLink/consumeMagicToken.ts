@@ -1,3 +1,4 @@
+import type { RedisPipelineExecType } from "./types.js";
 import { redis } from "../../config/redis.js";
 import { MAGIC_LINK_PREFIX } from "./constants.js"
 
@@ -15,12 +16,9 @@ import { MAGIC_LINK_PREFIX } from "./constants.js"
 export const consumeMagicToken = async (token: string): Promise<string | null> => {
   const key = `${MAGIC_LINK_PREFIX}${token}`;
 
-  // atomically get and delete - prevents a race condition where two
+  // atomically get and delete key - prevents a race condition where two
   // requests consume the same token simultaneously
-  const [userId] = await redis.pipeline().get(key).del(key).exec() as [
-    [Error | null, string | null],
-    [Error | null, number],
-  ];
+  const [userId] = await redis.pipeline().get(key).del(key).exec() as RedisPipelineExecType;
 
   return userId[1];
 }

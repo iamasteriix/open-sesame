@@ -6,7 +6,7 @@ import { getInteractionDetails } from "./getInteractionDetails.controller.js";
 import { makeConsentInteraction } from "./makeConsentInteraction.controller.js";
 
 
-const interactionRouter = (oidcProvider: Provider): Router => {
+export default (oidcProvider: Provider): Router => {
   const router = Router();
 
   router.get('/:uid', getInteractionDetails(oidcProvider));
@@ -16,6 +16,3 @@ const interactionRouter = (oidcProvider: Provider): Router => {
 
   return router;
 }
-
-
-export default interactionRouter;

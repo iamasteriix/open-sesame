@@ -24,7 +24,7 @@ export const makeMagicLinkInteraction = (oidcProvider: Provider) => {
       return;
 
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 }

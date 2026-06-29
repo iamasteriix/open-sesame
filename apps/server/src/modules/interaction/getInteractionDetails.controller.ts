@@ -12,9 +12,10 @@ export const getInteractionDetails = (oidcProvider: Provider) => {
 
       const details = await oidcProvider.interactionDetails(request, response);
       response.status(200).json(details);
+      return;
 
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 }

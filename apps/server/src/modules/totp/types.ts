@@ -21,11 +21,11 @@ export type RevokeTotpOptions = {
 };
 
 export type ReqBodyEnrollTotp = Request<{}, {}, {
-  userId: string;
+  email: string;
 }>;
 
 export type ReqBodyConfirmTotp = Request<{}, {}, {
-  userId: string;
+  email: string;
   code: string;
   secret: string;
 }>;

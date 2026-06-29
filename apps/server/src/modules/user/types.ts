@@ -1,8 +1,3 @@
-export type UserContactOptions = {
-  email?: string;
-  phone?: string;
-};
-
 export type UserIdentifierOptions = {
   username: string;
   email?: string;

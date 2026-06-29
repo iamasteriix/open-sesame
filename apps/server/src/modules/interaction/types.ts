@@ -8,8 +8,7 @@ export type ReqArgsTotpInteraction = Request<
   { uid: string },
   unknown,
   {
-    email?: string;
-    phone?: string;
+    email: string;
     code: string;
   }
 >;

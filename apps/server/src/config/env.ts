@@ -28,4 +28,5 @@ export const env = {
   // auth
   JWT_PRIVATE_KEY_B64: requiredEnvVar('JWT_PRIVATE_KEY_B64'),
   JWT_PUBLIC_KEY_B64: requiredEnvVar('JWT_PUBLIC_KEY_B64'),
+  OIDC_COOKIE_KEYS: requiredEnvVar('OIDC_COOKIE_KEYS'),
 } as const;
