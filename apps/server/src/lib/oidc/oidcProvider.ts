@@ -38,7 +38,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
     pkce: {
       // enforce pkce(tf?) for public clients (they have no client secret)
       // while letting confidential clients skip it
-      required: (_, client) => client.clientSecret === 'none',
+      required: (_, client) => client.clientAuthMethod === 'none',
     },
     ttl: {
       AccessToken: 15 *60,
@@ -51,14 +51,8 @@ export const createOidcProvider = async (): Promise<Provider> => {
     },
     cookies: {
       keys: env.OIDC_COOKIE_KEYS.split(','),
-      short: {
-        sameSite: 'lax',
-        secure: env.NODE_ENV === 'production',
-      },
-      long: {
-        sameSite: 'lax',
-        secure: env.NODE_ENV === 'production',
-      },
+      short: { sameSite: 'lax', },
+      long: { sameSite: 'lax', },
     },
     scopes: ['openid', 'email', 'profile',],
     findAccount: async (_, id) => {

@@ -135,7 +135,21 @@ export class OidcPostgresAdapter implements Adapter {
   }
 
 
-  // query `oauth_clients` specifically
+  /**
+   * Since the adapter is polymorphic, this isolated method is the first example I had to
+   * branch out of `this.find()` to handle specifically fetching the 'Client' model, separate
+   * from all the other generic models.
+   * The OIDC provider performs a direct comparison between `client.clientSecret` on the client instance
+   * and `client_secret` included in the payload returned by this method to verify them. As it turns
+   * out, it is recommended (weasel talk) that confidential clients authenticate with other methods
+   * besides `'none'` for enhanced security. As it turns out, these other methods require that `client_secret`
+   * be populated, otherwise the provider will throw an error.
+   * 
+   * @see onVerifyClient for how we ensure that this trivial confirmation by the provider that requires *some*
+   * secret to exist in both the client instance and the payload required by this instance is effected.
+   * 
+   * @author iamasteriix
+   */
   private async findClientModel (id: string): Promise<AdapterPayload | undefined> {
     const { rows, rowCount } = await dbPool.query({
       name: 'find-oauth-client',
