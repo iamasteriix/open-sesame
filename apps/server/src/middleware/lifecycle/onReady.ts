@@ -3,17 +3,12 @@ import { onError } from "../errors/onError.js";
 import { logger } from "../../config/logger.js";
 
 
-export type AppReadyOptions = {
-  app: Express;
-};
-
-
 /**
  * Initializes server components after successful startup.
  * 
  * @function onReady
  */
-export const onReady = ({ app }: AppReadyOptions): void => {
+export const onReady = (app: Express): void => {
   // do all the things
 
   logger.info('Server live and accepting connections.');

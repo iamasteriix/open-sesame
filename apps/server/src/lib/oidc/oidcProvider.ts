@@ -15,13 +15,39 @@ export const createOidcProvider = async (): Promise<Provider> => {
 
   return new Provider(env.ENDPOINT, {
     adapter: OidcPostgresAdapter,
-    jwks: {
-      keys: [jwk],
+    claims: {
+      openid: ['sub'],
+      email: ['email'],
+      profile: ['username', 'display_name'],
+    },
+    clientDefaults: {
+      id_token_signed_response_alg: 'ES256',
+    },
+    clientAuthMethods: ['client_secret_basic', 'none'],
+    features: {
+      devInteractions: { enabled: false, },
     },
     interactions: {
       url(_, interaction) {
         return `/interaction/${interaction.uid}`;
       }
+    },
+    jwks: {
+      keys: [jwk],
+    },
+    pkce: {
+      // enforce pkce(tf?) for public clients (they have no client secret)
+      // while letting confidential clients skip it
+      required: (_, client) => client.clientSecret === 'none',
+    },
+    ttl: {
+      AccessToken: 15 *60,
+      AuthorizationCode: 10 *60,
+      Grant: 30 *24 *60 *60,
+      IdToken: 15 *60,
+      Interaction: 60 *60,
+      RefreshToken: 14 *24 *60 *60,
+      Session: 14 *24 *60 *60,
     },
     cookies: {
       keys: env.OIDC_COOKIE_KEYS.split(','),
@@ -34,35 +60,15 @@ export const createOidcProvider = async (): Promise<Provider> => {
         secure: env.NODE_ENV === 'production',
       },
     },
-    claims: {
-      openid: ['sub'],
-      email: ['email'],
-      profile: ['username', 'display_name'],
-    },
     scopes: ['openid', 'email', 'profile',],
-    pkce: {
-      required: (_, client) => client.clientAuthMethod === 'none',  // expose public clients at runtime
-    },
-    enabledJWA: {
-      idTokenSigningAlgValues: ['ES256'],
-    },
-    features: {
-      devInteractions: { enabled: false, },
-    },
     findAccount: async (_, id) => {
       return {
         accountId: id,
         claims: async () => ({ sub: id, }),
       };
     },
-    ttl: {
-      AccessToken: 15 *60,
-      AuthorizationCode: 10 *60,
-      Grant: 30 *24 *60 *60,
-      IdToken: 15 *60,
-      Interaction: 60 *60,
-      RefreshToken: 14 *24 *60 *60,
-      Session: 14 *24 *60 *60,
+    enabledJWA: {
+      idTokenSigningAlgValues: ['ES256'],
     },
   });
 }

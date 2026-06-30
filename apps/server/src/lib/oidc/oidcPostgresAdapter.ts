@@ -41,8 +41,9 @@ export class OidcPostgresAdapter implements Adapter {
   }
 
 
+  // branch between models
   async find (id: string): Promise<AdapterPayload | undefined> {
-    if (this.type === 'Client') return this.findClient(id);
+    if (this.type === 'Client') return this.findClientModel(id);
     return this.findModel(id);
   }
 
@@ -135,12 +136,12 @@ export class OidcPostgresAdapter implements Adapter {
 
 
   // query `oauth_clients` specifically
-  private async findClient (id: string): Promise<AdapterPayload | undefined> {
+  private async findClientModel (id: string): Promise<AdapterPayload | undefined> {
     const { rows, rowCount } = await dbPool.query({
       name: 'find-oauth-client',
       text: `
         select
-          client_id,
+          client_id, client_secret_hash,
           redirect_uris,
           allowed_grants, allowed_scopes,
           is_public
@@ -154,16 +155,16 @@ export class OidcPostgresAdapter implements Adapter {
 
     return {
       client_id: rows[0].client_id,
+      client_secret: rows[0].client_secret_hash,  // required by provider for confidential clients' auth confirmation
       redirect_uris: rows[0].redirect_uris,
       grant_types: rows[0].allowed_grants,
       scope: rows[0].allowed_scopes.join(' '),
       token_endpoint_auth_method: rows[0].is_public ? 'none' : 'client_secret_basic',
-      id_token_signed_response_alg: 'ES256',
     };
   }
 
 
-  // query every other model
+  // query every model that is not 'Client'
   private async findModel (id: string): Promise<AdapterPayload | undefined> {
     const { rows, rowCount, } = await dbPool.query({
       name: 'find-oidc-model',

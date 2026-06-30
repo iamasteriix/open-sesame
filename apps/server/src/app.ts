@@ -1,5 +1,5 @@
 import express from "express";
-import http from "http";
+import { createServer } from "http";
 import { env } from "./config/env.js";
 import { onStart } from "./middleware/lifecycle/onStart.js";
 import { onReady } from "./middleware/lifecycle/onReady.js";
@@ -15,15 +15,14 @@ export type AppInstanceParams = {
 
 export default async (): Promise<AppInstanceParams> => {
   const app = express();
-  const server = http.createServer(app);
+  const server = createServer(app);
 
-  await onStart({ app, });            // initialize application middleware
-  server.listen({ port: env.PORT, }); // start HTTP server
-  onReady({ app });                   // ready lifecycle
+  await onStart(app, server); // wire up middleware, routes, and start app
+  onReady(app);               // ready lifecycle
 
   return {
     endpoint: env.ENDPOINT,
     port: env.PORT,
-    shutdown: () => onShutdown({ server, }),
+    shutdown: () => onShutdown(server),
   };
 }

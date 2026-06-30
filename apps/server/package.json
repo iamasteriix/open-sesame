@@ -14,19 +14,16 @@
   },
   "dependencies": {
     "@open-sesame/common": "^0.1.0",
+    "argon2": "^0.44.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
-    "dotenv": "~17.4.2",
     "express": "~5.2.1",
     "ioredis": "^5.11.1",
     "jose": "^6.2.3",
-    "node-email-verifier": "^4.0.0",
     "oidc-provider": "^9.8.5",
     "otplib": "^13.4.1",
     "pg": "^8.21.0",
-    "pino": "^10.3.1",
-    "pino-http": "^11.0.0",
-    "qrcode": "^1.5.4"
+    "pino": "^10.3.1"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",
