@@ -1,6 +1,6 @@
 import type { RevokeTotpOptions } from "./types.js";
 import { dbPool } from "../../config/db.js";
-import { ValidationError } from "../../lib/errors/errors.js";
+import { AppError } from "../../lib/errors/errors.js";
 
 
 /**
@@ -19,8 +19,8 @@ export const revokeTotpCredential = async ({ userId, }: RevokeTotpOptions): Prom
       values: [userId],
     });
   } catch (error) {
-    if (error instanceof Error && error.message === 'totp_not_enrolled')
-      throw new ValidationError('TOTP not enrolled for this user');
+    if (error instanceof AppError && error.code === '42703')
+      throw new AppError(error.message, 404, error.code);
     else throw error;
   }
 }

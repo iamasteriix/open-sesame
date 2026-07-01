@@ -7,11 +7,11 @@ begin
   if exists (
     select 1
     from credentials
-    where
-      user_id = p_user_id
-      and type = 'totp'
+    where user_id = p_user_id and type = 'totp'
   ) then
-    raise exception 'totp_already_enrolled';
+    raise exception using
+      errcode = '23505',
+      message = 'TOTP already enrolled for this user';
   end if;
 
   -- add totp credential data

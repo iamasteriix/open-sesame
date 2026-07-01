@@ -7,7 +7,9 @@ begin
     from credentials
     where user_id = p_user_id and type = 'totp'
   ) then
-    raise exception 'totp_not_enrolled';
+    raise exception using
+      errcode = 'P0002',
+      message = 'TOTP not enrolled for this user';
   end if;
 
   -- delete totp credential data

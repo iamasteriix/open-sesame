@@ -46,7 +46,7 @@ export const createOidcProvider = async (): Promise<Provider> => {
       Grant: 30 *24 *60 *60,
       IdToken: 15 *60,
       Interaction: 60 *60,
-      RefreshToken: 14 *24 *60 *60,
+      RefreshToken: 30 *24 *60 *60,
       Session: 14 *24 *60 *60,
     },
     cookies: {
