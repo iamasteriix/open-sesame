@@ -41,7 +41,6 @@ export const onError = (
         message: error.message,
       },
     });
-
     return;
   }
   

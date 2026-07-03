@@ -1,0 +1,12 @@
+export const MISSING_PARAMS_MSG = 'Missing required parameters';
+export const MAGIC_LINK_TTL_SECS = 15 *60;
+export const ACCESS_TOKEN_TTL_SECS = 15 *60; // 15 minutes
+export const REFRESH_TOKEN_TTL_SECS = 60 *60 *24 *30; // 30 days
+export const MFA_TOKEN_TTL_SECS = 5 *60;
+export const TOTP_SECRET_TTL_SECS = 15 *60;
+export const MAGIC_LINK_PREFIX = 'magic:';
+export const REFRESH_TOKEN_PREFIX = 'refresh:';
+export const TOTP_SECRET_PREFIX = 'secret:';
+export const MFA_TOKEN_PREFIX = 'mfa:'
+export const TOKEN_BYTE_SIZE = 32;
+export const TOTP_ISSUER = 'Open Sesame';

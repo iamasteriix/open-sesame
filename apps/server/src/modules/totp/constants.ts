@@ -1,1 +1,0 @@
-export const TOTP_ISSUER = 'Open Sesame';

@@ -145,6 +145,8 @@ export class OidcPostgresAdapter implements Adapter {
    * besides `'none'` for enhanced security. As it turns out, these other methods require that `client_secret`
    * be populated, otherwise the provider will throw an error.
    * 
+   * @note `client_secret` must be a non-empty string if provided, otherwise it remains `undefined`.
+   * 
    * @see onVerifyClient for how we ensure that this trivial confirmation by the provider that requires *some*
    * secret to exist in both the client instance and the payload required by this instance is effected.
    * 
@@ -169,7 +171,7 @@ export class OidcPostgresAdapter implements Adapter {
 
     return {
       client_id: rows[0].client_id,
-      client_secret: rows[0].client_secret_hash,  // required by provider for confidential clients' auth confirmation
+      client_secret: rows[0].client_secret_hash ?? undefined,  // required by provider for confidential clients' auth confirmation
       redirect_uris: rows[0].redirect_uris,
       grant_types: rows[0].allowed_grants,
       scope: rows[0].allowed_scopes.join(' '),

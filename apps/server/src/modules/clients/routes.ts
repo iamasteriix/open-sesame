@@ -8,7 +8,7 @@ import { revokeClientController } from "./revokeClient.controller.js";
 const clientRouter = Router();
 
 
-clientRouter.post('/', registerClientController);
+clientRouter.post('/register', registerClientController);
 
 clientRouter.route('/:id')
   .get(getClient)

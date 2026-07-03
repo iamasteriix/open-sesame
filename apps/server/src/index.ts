@@ -23,7 +23,7 @@ const handleUnhandledRejection = async (reason: unknown) => {
 const handleUncaughtException = async (error: unknown) => {
   logger.fatal({ err: error, }, 'Uncaught exception');
   await onShutdown?.();
-  process.exit(1);  // (You must exit after an uncaught exception)[https://node.readthedocs.io/en/latest/api/process/#event-uncaughtexception]
+  process.exit(1);  // [You must exit after an uncaught exception](https://node.readthedocs.io/en/latest/api/process/#event-uncaughtexception)
 }
 
 

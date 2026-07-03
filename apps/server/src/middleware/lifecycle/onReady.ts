@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { onError } from "../errors/onError.js";
+import { onError } from "../telemetry/onError.js";
 import { logger } from "../../config/logger.js";
 
 

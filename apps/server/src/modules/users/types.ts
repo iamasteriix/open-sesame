@@ -6,7 +6,7 @@ export type UserIdentifierOptions = {
 
 export type UserOptions = {
   id: string;
-  email: string | null;
+  email: string;
   phone: string | null;
   username: string;
   display_name: string | null;
