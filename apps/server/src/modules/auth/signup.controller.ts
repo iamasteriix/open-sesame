@@ -8,7 +8,24 @@ import * as constants from "./constants.js";
 
 
 
-export const signupController = async (
+export const handleGetSignup = async (
+  request: any,
+  response: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    
+    response.status(200).json({ foo: 'bar', });
+    return;
+
+  } catch (error) {
+    return next(error);
+  }
+}
+
+
+
+export const handleSubmitSignup = async (
   request: ReqGenericsSignup,
   response: Response,
   next: NextFunction,

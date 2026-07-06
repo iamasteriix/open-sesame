@@ -15,8 +15,7 @@ begin
   end if;
 
   -- add totp credential data
-  insert
-  into credentials (user_id, type, data)
+  insert into credentials (user_id, type, data)
   values (
     p_user_id,
     'totp',

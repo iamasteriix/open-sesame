@@ -1,9 +1,10 @@
-import { Provider } from "oidc-provider";
+import { Provider, type Account, type AccountClaims } from "oidc-provider";
 import { exportJWK } from "jose";
 import { getJWSigningKey } from "../jwtKeys/jwtKeys.js";
 import { env } from "../../config/env.js";
 import { OidcPostgresAdapter } from "./oidcPostgresAdapter.js";
 import { logger } from "../../config/logger.js";
+import { findUserById } from "../../modules/users/user.service.js";
 
 
 /**
@@ -62,8 +63,14 @@ export const createOidcProvider = async (): Promise<Provider> => {
 
     cookies: {
       keys: env.OIDC_COOKIE_KEYS.split(','),
-      short: { sameSite: 'lax', },
-      long: { sameSite: 'lax', },
+      short: {
+        sameSite: 'lax',
+        path: '/',
+      },
+      long: {
+        sameSite: 'lax',
+        path: '/',
+      },
     },
 
     // offline-access required to allow `refresh_token` grant for public clients
@@ -76,10 +83,19 @@ export const createOidcProvider = async (): Promise<Provider> => {
       }, out.error_description);
     },
 
-    findAccount: async (_, id) => {
+    findAccount: async (_, sub): Promise<Account | undefined> => {
+      const user = await findUserById(sub);
+      if (!user) return undefined;
       return {
-        accountId: id,
-        claims: async () => ({ sub: id, }),
+        accountId: user.id,
+        claims: async (_, scope) => {
+          const claims: AccountClaims = { sub: user.id, };
+          if (scope.includes('email')) claims.email = user.email;
+          if (scope.includes('profile')) {
+            claims.display_name = user.display_name;
+          }
+          return claims;
+        },
       };
     },
     

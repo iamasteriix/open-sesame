@@ -1,7 +1,7 @@
 create or replace function create_user (
   p_username text,
   p_email text,
-  p_phone text default null,
+  p_phone text,
   p_secret text,
   p_avatar_url text default null
 )
@@ -16,24 +16,25 @@ begin
       -- register core identity
       insert into users (email, phone, username, email_confirmed_at)
       values (p_email, p_phone, p_username, now())
-      returning id, email, phone, username, role, deleted_at
+      returning id, email, phone, username, role, deleted_at, display_name
     ),
     new_profile as (
       -- add user profile
       insert into user_profiles (user_id, avatar_url)
-      values (v_user_id, p_avatar_url)
+      select id, p_avatar_url
+      from new_user
       on conflict on constraint user_profiles_user_id_fkey do nothing
-      returning display_name, avatar_url
+      returning avatar_url
     ),
-    new_credential (
+    new_credential as (
       -- save totp credential data
-      insert
-      into credentials (user_id, type, data)
-      values (
-        v_user_id,
+      insert into credentials (user_id, type, data)
+      select
+        id,
         'totp',
         jsonb_build_object('secret', p_secret)
-      );
+      from new_user
+      returning id  -- returning something ensures the write executes completely
     )
   select json_build_object (
     'id', u.id,
@@ -41,7 +42,7 @@ begin
     'phone', u.phone,
     'username', u.username,
     'role', u.role,
-    'display_name', p.display_name,
+    'display_name', u.display_name,
     'avatar_url', p.avatar_url,
     'deleted_at', u.deleted_at
   )

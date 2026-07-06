@@ -4,6 +4,26 @@ import type { OidcGrantType, OidcMissingScopesType } from "./types.js";
 import { UnauthorizedError } from "../../lib/errors/errors.js";
 
 
+
+export const makeHandleAllowAccess = (oidcProvider: Provider) => {
+  return async (
+    request: any,
+    response: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      
+      response.status(200).json({ foo: 'bar', });
+      return;
+
+    } catch (error) {
+      return next(error);
+    }
+  }
+}
+
+
+
 /**
  * When a user has already approved scopes for a client in a previous session, the oidc provider
  * stores that as a `Grant` and associates its id with the session. Subsequent authorizations
@@ -11,7 +31,7 @@ import { UnauthorizedError } from "../../lib/errors/errors.js";
  * If the user and client don't have an existing relationship, the provider creates a fresh grant
  * from scratch from the client's scopes for the user to approve.
  */
-export const makeAllowController = (oidcProvider: Provider) => {
+export const makeSubmitConsentController = (oidcProvider: Provider) => {
   return async (
     request: Request,
     response: Response,
