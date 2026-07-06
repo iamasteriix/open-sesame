@@ -1,6 +1,7 @@
-export type UserIdentifierOptions = {
+export type RegisterUserParams = {
   username: string;
-  email?: string;
+  email: string;
+  secret: string;
   phone?: string;
 }
 

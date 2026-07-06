@@ -1,3 +1,4 @@
+import type { TOTPSecretOptions } from "./types.js";
 import { generateSecret, generateURI, verify } from "otplib";
 import { dbPool } from "../../config/db.js";
 import { AppError } from "../../lib/errors/errors.js";
@@ -7,15 +8,17 @@ import * as constants from "./constants.js";
 /**
  * Generates a TOTP secret and uri and persists secret in redis.
  * The identifier is expected to be the user's email, username, etc
+ * 
+ * @returns uri string
  */
-export const buildTotpUri = async (identifier: string): Promise<string> => {
+export const buildTotpUri = async (identifier: string): Promise<TOTPSecretOptions> => {
   const secret = generateSecret();
   const uri = generateURI({
     issuer: constants.TOTP_ISSUER,
     label: identifier,
     secret,
   });
-  return uri;
+  return { uri, secret, };
 }
 
 

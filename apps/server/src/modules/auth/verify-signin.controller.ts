@@ -2,9 +2,8 @@ import type { Response, NextFunction } from "express";
 import type { Provider } from "oidc-provider";
 import type { ReqGenericsVerifySignin, } from "./types.js";
 import { NotFoundError, UnauthorizedError, ValidationError } from "../../lib/errors/errors.js";
-import { consumeMagicToken, issueEphemeralToken, revokeEphemeralToken, signAccessToken } from "./tokens.service.js";
-import { findUserByEmail, findUserById, findUserByUsername } from "../users/user.service.js";
-import { validateEmailFormat } from "../../utils/helpers/validate-strings.helper.js";
+import { consumeEphemeralToken, issueEphemeralToken, signAccessToken } from "./tokens.service.js";
+import { findUserById, } from "../users/user.service.js";
 import { getTotpSecret, verifyTotpCode } from "./totp.service.js";
 import * as constants from "./constants.js";
 
@@ -15,18 +14,17 @@ import * as constants from "./constants.js";
  * the magic token to verify the first step, and then issues a timed MFA token to
  * suspend the authentication flow until it is confirmed.
  */
-export const verifyMagicToken = async (
+export const verifySigninMagicToken = async (
     request: ReqGenericsVerifySignin,
     response: Response,
     next: NextFunction,
   ): Promise<void> => {
   try {
-    
     const { token, } = request.query;
     if (!token) throw new ValidationError(constants.MISSING_PARAMS_MSG);
 
     // verify magic token
-    const userId = await consumeMagicToken(token);
+    const userId = await consumeEphemeralToken(constants.MAGIC_LINK_PREFIX, token);
     if (!userId) throw new UnauthorizedError('Magic link is invalid or expired');
 
     const user = await findUserById(userId);
@@ -35,7 +33,7 @@ export const verifyMagicToken = async (
     // issue MFA token
     const mfaToken = await issueEphemeralToken(constants.MFA_TOKEN_PREFIX, user.id, constants.MFA_TOKEN_TTL_SECS);
     
-    response.status(202).json({ mfaToken, });
+    response.status(200).json({ mfaToken, });
     return;
 
   } catch (error) {
@@ -48,7 +46,7 @@ export const verifyMagicToken = async (
 /**
  * Open sesame!
  */
-export const makeVerifyTotp = (oidcProvider: Provider) => {
+export const makeVerifySigninTotp = (oidcProvider: Provider) => {
   return async (
     request: ReqGenericsVerifySignin,
     response: Response,
@@ -56,31 +54,29 @@ export const makeVerifyTotp = (oidcProvider: Provider) => {
   ): Promise<void> => {
     try {
       
-      const { identifier, code, mfaToken } = request.body;
-      if (!identifier || !code) throw new ValidationError(constants.MISSING_PARAMS_MSG);
+      const { code, mfaToken } = request.body;
+      if (!code) throw new ValidationError(constants.MISSING_PARAMS_MSG);
       
-      let user;
-      const isIdentifierEmail = validateEmailFormat(identifier);
-      if (isIdentifierEmail) user = await findUserByEmail(identifier);
-      else user = await findUserByUsername(identifier);
-      if (!user) throw new NotFoundError('User not found');
+      // consume MFA token
+      const userId = await consumeEphemeralToken(constants.MFA_TOKEN_PREFIX, mfaToken);
+      if (!userId) throw new UnauthorizedError('MFA token is invalid or expired');
 
       // retrieve secret from credentials
-      const secret = await getTotpSecret(user.id);
+      const secret = await getTotpSecret(userId);
       if (!secret) throw new UnauthorizedError();
 
       // validate OTP
       const isValid = await verifyTotpCode(code, secret);
       if (!isValid) throw new UnauthorizedError('Invalid TOTP code');
-      else {
-        // revoke mfa token
-        const result = await revokeEphemeralToken(constants.MFA_TOKEN_PREFIX, mfaToken);
-        if (!result) throw new UnauthorizedError();
-      }
+
+      // find user
+      const user = await findUserById(userId);
+      if (!user) throw new NotFoundError('User not found');
 
       // issue auth tokens
+      const userStr = JSON.stringify({ userId: user.id, role: user.role, });
       const accessToken = await signAccessToken(user.id, user.role);
-      const refreshToken = await issueEphemeralToken(constants.REFRESH_TOKEN_PREFIX, user.id, constants.REFRESH_TOKEN_TTL_SECS);
+      const refreshToken = await issueEphemeralToken(constants.REFRESH_TOKEN_PREFIX, userStr, constants.REFRESH_TOKEN_TTL_SECS);
 
       response.status(200).json({
         refresh_token: refreshToken,

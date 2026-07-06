@@ -8,5 +8,6 @@ export const MAGIC_LINK_PREFIX = 'magic:';
 export const REFRESH_TOKEN_PREFIX = 'refresh:';
 export const TOTP_SECRET_PREFIX = 'secret:';
 export const MFA_TOKEN_PREFIX = 'mfa:'
+export const BLACKLIST_TOKEN_PREFIX = 'blacklist:';
 export const TOKEN_BYTE_SIZE = 32;
 export const TOTP_ISSUER = 'Open Sesame';

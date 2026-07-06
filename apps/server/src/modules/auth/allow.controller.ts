@@ -11,7 +11,7 @@ import { UnauthorizedError } from "../../lib/errors/errors.js";
  * If the user and client don't have an existing relationship, the provider creates a fresh grant
  * from scratch from the client's scopes for the user to approve.
  */
-export const makeAuthorizeController = (oidcProvider: Provider) => {
+export const makeAllowController = (oidcProvider: Provider) => {
   return async (
     request: Request,
     response: Response,

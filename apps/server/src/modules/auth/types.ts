@@ -9,13 +9,20 @@ type UserContacts =
   | { username: string; email: string; };
 
 export type AccessTokenPayload = {
-  subject: string;
+  sub: string;
   role: string;
+  jti: string;
 };
 
 export type RefreshTokenParams = {
   userId: string;
+  role: string;
   newRefreshToken: string;
+};
+
+export type TOTPSecretOptions = {
+  uri: string;
+  secret: string;
 };
 
 export type OidcGrantType = Grant | undefined;
@@ -38,7 +45,6 @@ export type ReqGenericsVerifySignin = Request<
   { uid: string },
   unknown,
   {
-    identifier?: string;
     code?: string;
     mfaToken: string;
   },
@@ -49,3 +55,26 @@ export type ReqBodyConfirmTotp = Request<{}, {}, {
   label: string;
   code: string;
 }>;
+
+export type ReqGenericsSignup = Request<
+  {},
+  {},
+  {
+    username: string;
+    email: string;
+  },
+  { next?: string; }
+>;
+
+export type ReqGenericsVerifySignup = Request<
+  { uid: string },
+  unknown,
+  {
+    email?: string;
+    code?: string;
+    mfaToken?: string;
+  },
+  { token?: string, }
+>;
+
+export type ReqBodyRefreshToken = Request<{}, {}, { refresh_token: string; }>;
