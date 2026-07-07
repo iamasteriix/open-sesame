@@ -7,8 +7,7 @@ create schema if not exists migrations;
 
 
 -- migration tracking table stores the history of all applied migrations
-create table
-  if not exists migrations.schema_migrations (
+create table if not exists migrations.schema_migrations (
   id serial primary key,
   version varchar(14) not null unique,          -- timestamp-based version
   name varchar(255) not null,                   -- human-readable migration name

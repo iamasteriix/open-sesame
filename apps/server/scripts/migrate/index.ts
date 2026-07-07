@@ -24,11 +24,11 @@ type MigrationContent = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
 const DB_DIR = resolve(__dirname, '../../db/');
 const MIGRATIONS_DIR = resolve(DB_DIR, 'migrations/versions/');
 const ROLLBACKS_DIR = resolve(DB_DIR, 'migrations/rollbacks/');
 const SCHEMA_MIGRATIONS_SQL = resolve(DB_DIR, 'schema_migrations.sql');
+
 
 
 /**
@@ -43,6 +43,7 @@ const bootstrap = async (client: Client): Promise<void> => {
   const sql = readFileSync(SCHEMA_MIGRATIONS_SQL, 'utf-8');
   await client.query(sql);
 }
+
 
 
 /**
@@ -87,6 +88,7 @@ const discoverMigrations = (): MigrationFile[] => {
 }
 
 
+
 /**
  * Retrieves the set of migration versions that have been applied to the database.
  * Queries the migrations tracking table for all non-rolled-back migrations, sorted by version.
@@ -109,6 +111,7 @@ const getAppliedMigrations = async (client: Client): Promise<Set<string>> => {
 }
 
 
+
 /**
  * Filters discovered migrations to return only those not yet applied.
  *
@@ -122,6 +125,7 @@ const getPendingMigrations = (
 ): MigrationFile[] => {
   return discovered.filter(item => !applied.has(item.version));
 }
+
 
 
 /**
@@ -138,6 +142,7 @@ const readSqlFile = (filepath: string): MigrationContent => {
 
   return { sql, checksum, };
 }
+
 
 
 /**
@@ -183,6 +188,7 @@ const printStatus = async (
 }
 
 
+
 /**
  * 
  */
@@ -197,6 +203,7 @@ const getTimestamp = (): string => {
     String(now.getUTCSeconds()).padStart(2, '0'),
   ].join('');
 }
+
 
 
 /**
@@ -243,6 +250,7 @@ const applyMigration = async (
 }
 
 
+
 /**
  * Executes a migration rollback by running the down SQL and marking the migration as rolled back.
  * Reads the rollback SQL file, executes it within a transaction, and updates the schema_migrations table.
@@ -278,6 +286,7 @@ const rollbackMigration = async (
     throw error;
   }
 }
+
 
 
 /**
