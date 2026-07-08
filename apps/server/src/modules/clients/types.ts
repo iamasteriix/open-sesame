@@ -35,7 +35,6 @@ export type RegisteredClientOptions = {
   client_id: string;
   name: string;
   logo_url: string | null;
-  owner_id: string | null;
   redirect_uris: string[];
   allowed_grants: string[];
   allowed_scopes: string[];

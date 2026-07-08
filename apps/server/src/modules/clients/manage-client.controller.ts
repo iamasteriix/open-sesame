@@ -1,7 +1,7 @@
 import type { Response, NextFunction, } from "express";
 import type { ReqQueryGetClient } from "./types.js";
 import { NotFoundError } from "../../lib/errors/errors.js";
-import { findClientById } from "./findClientById.js";
+import { findClientById } from "./clients.services.js";
 
 
 export const getClient = async (

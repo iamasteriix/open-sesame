@@ -14,11 +14,11 @@ const SEEDS_DIR = resolve(DB_DIR, 'seeds/dev/');
 
 
 const runSeed = async (client: Client, filename: string): Promise<void> => {
-  logger.info(`○ Running seeder: ${filename}`);
+  logger.info(`○ Running seeder:\t${filename}`);
   const file = resolve(SEEDS_DIR, filename);
   const sql = await readFile(file, 'utf-8');
   await client.query(sql);
-  logger.info(`✓ Seeder complete: ${filename}`);
+  logger.info(`✓ Seeder complete:\t${filename}`);
 }
 
 

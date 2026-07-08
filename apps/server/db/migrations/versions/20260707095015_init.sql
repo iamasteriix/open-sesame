@@ -216,3 +216,52 @@ where revoked_at is null;
 create index if not exists oauth_user_consents_client_id_idx
 on public.oauth_user_consents (client_id)
 where revoked_at is null;
+
+
+
+-- ————————————————————————————————————————————————————————————————————————————
+-- generic persistence table to store all the durable stateful objects the oidc provider needs to track during auth flows
+-- the provider may generate different model types with similar ids across auth flows
+create table if not exists public.oidc_models (
+  id text not null,    -- model identifier within a flow (combined with 'name' for uniqueness)
+  kind text not null,
+  payload jsonb not null default '{}',  -- persisted context state
+  granted_at timestamptz,
+  consumed_at timestamptz,
+  expires_at timestamptz,
+  constraint oidc_models_pkey primary key (id, kind)
+);
+
+
+-- partial index for active models
+create index if not exists oidc_models_active_models_idx
+on public.oidc_models (expires_at)
+where expires_at is not null;
+
+
+-- accelerate looking up transient token identifiers
+create index if not exists oidc_models_payload_grant_id_idx
+on public.oidc_models ((payload->>'grantId'))
+where payload->>'grantId' is not null;
+
+create index if not exists oidc_models_payload_uid_idx
+on public.oidc_models ((payload->>'uid'))
+where payload->>'uid' is not null;
+
+create index if not exists oidc_models_payload_usercode_idx
+on public.oidc_models ((payload->>'userCode'))
+where payload->>'userCode' is not null;
+
+
+-- clean up stale entities with a scheduled job
+create extension if not exists pg_cron;
+
+select cron.schedule (
+  'oidc:purge-stale-models',  -- job name (naming scheme: context:action-target)
+  '0 * * * *',                -- cron expression: run at minute 0 of every hour
+  $$
+    delete
+    from oidc_models
+    where expires_at < now()
+  $$
+);

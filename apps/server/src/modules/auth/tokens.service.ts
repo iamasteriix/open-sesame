@@ -4,7 +4,7 @@ import { randomBytes } from "crypto";
 import { decodeJwt, jwtVerify, SignJWT } from "jose";
 import { redis } from "../../config/redis.js";
 import { env } from "../../config/env.js";
-import { getJWSigningKey, getJWVerifyKey } from "../../lib/jwtKeys/jwtKeys.js";
+import { getJWSigningKey, getJWVerifyKey } from "../../lib/jwtKeys/jwt-keys.js";
 import { ValidationError } from "../../lib/errors/errors.js";
 import * as constants from "./constants.js";
 

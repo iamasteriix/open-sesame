@@ -1,8 +1,8 @@
 import type { Response, NextFunction, } from "express";
 import type { ReqBodyRegisterClient } from "./types.js";
 import { ErrorCodes } from "@open-sesame/common";
-import { registerClient } from "./registerClient.js";
-import { AppError, ValidationError } from "../../lib/errors/errors.js";
+import { AppError } from "../../lib/errors/errors.js";
+import { registerClient } from "./clients.services.js";
 
 
 export const registerClientController = async (
@@ -12,23 +12,9 @@ export const registerClientController = async (
 ): Promise<void> => {
   try {
 
-    const {
-      name, logoUrl,
-      ownerId,
-      redirectUris,
-      allowedGrants, allowedScopes,
-      isPublic,
-    } = request.body;
+    const foo = request.body;
 
-    if (!redirectUris.length) throw new ValidationError('At least one redirect uri is required');
-
-    const result = await registerClient({
-      name, logoUrl,
-      ownerId,
-      redirectUris,
-      allowedGrants, allowedScopes,
-      isPublic,
-    });
+    const result = await registerClient(foo);
     if (!result) throw new AppError('Failed to register client', 500, ErrorCodes.internal.code);
 
     const { client, secret } = result;

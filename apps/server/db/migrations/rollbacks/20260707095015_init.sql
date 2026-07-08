@@ -1,3 +1,11 @@
+select cron.unschedule ('oidc:purge-stale-models');
+drop extension if exists pg_cron;
+drop index if exists public.oidc_models_payload_usercode_idx;
+drop index if exists public.oidc_models_payload_uid_idx;
+drop index if exists public.oidc_models_payload_grant_id_idx;
+drop index if exists public.oidc_models_active_models_idx;
+drop table if exists public.oidc_models;
+
 drop index if exists public.oauth_user_consents_client_id_idx;
 drop index if exists public.oauth_user_consents_user_id_idx;
 drop table if exists public.oauth_user_consents;

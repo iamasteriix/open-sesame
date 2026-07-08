@@ -1,22 +1,26 @@
-import { Provider, type Account, type AccountClaims } from "oidc-provider";
+import type { Account, AccountClaims, Adapter, } from "oidc-provider";
+import { Provider } from "oidc-provider";
 import { exportJWK } from "jose";
-import { getJWSigningKey } from "../jwtKeys/jwtKeys.js";
+import { getJWSigningKey } from "../jwtKeys/jwt-keys.js";
 import { env } from "../../config/env.js";
-import { OidcPostgresAdapter } from "./oidcPostgresAdapter.js";
+import { OidcRedisAdapter } from "./redis-adapter.js";
+import { OidcPostgresAdapter } from "./postgres-adapter.js";
 import { logger } from "../../config/logger.js";
 import { findUserById } from "../../modules/users/user.service.js";
 
 
-/**
- * @todo Tighten `pkce` per client
- */
+
 export const createOidcProvider = async (): Promise<Provider> => {
 
   const signingKey = getJWSigningKey();
   const jwk = await exportJWK(signingKey);
 
-  return new Provider(env.ENDPOINT, {
-    adapter: OidcPostgresAdapter,
+  return new Provider (env.ENDPOINT, {
+    // factory function that conditionally selects adapter instance depending on model name
+    adapter: (name: string): Adapter => {
+      if (['Client', 'Grant'].includes(name)) return new OidcPostgresAdapter(name);
+      return new OidcRedisAdapter(name);
+    },
 
     claims: {
       openid: ['sub'],
