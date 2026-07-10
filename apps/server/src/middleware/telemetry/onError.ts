@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
+import { ErrorCodes } from "@open-sesame/common";
 import { AppError } from '../../lib/errors/errors.js';
 import { logger } from '../../config/logger.js';
-import { ErrorCodes } from "@open-sesame/common";
 
 
 /**
@@ -21,6 +21,8 @@ import { ErrorCodes } from "@open-sesame/common";
  * right now. Just add `console.log(error.code);` at the top of the function, you
  * will notice that TypeScript will complain.
  * So the check comes first, and if it fails, then it is an unexpected error.
+ * 
+ * @author iamasteriix
  */
 export const onError = (
   error: unknown,
@@ -30,15 +32,15 @@ export const onError = (
 ): void => {
 
   if (error instanceof AppError) {
-    request.log?.info(
-      { code: error.code, statusCode: error.statusCode, },
+    request.log?.error(
+      { error: error, },
       error.message,
     );
 
     response.status(error.statusCode).json({
       error: {
-        code: error.code,
-        message: error.message,
+        code: ErrorCodes.internal.code,
+        message: ErrorCodes.internal.message,
       },
     });
     return;

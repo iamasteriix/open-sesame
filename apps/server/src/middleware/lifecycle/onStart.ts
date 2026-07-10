@@ -6,9 +6,11 @@ import { dbPool } from "../../config/db.js";
 import { logger } from "../../config/logger.js";
 import { initJWTKeys } from "../../lib/jwtKeys/jwt-keys.js";
 import { createOidcProvider } from "../../lib/oidc/oidc-provider.js";
+import { onLogRequests } from "../telemetry/onLogRequests.js";
 import { env } from "../../config/env.js";
 import cookieParser from "cookie-parser";
 import createRouter from "../../routes/index.js";
+
 
 
 /**
@@ -32,6 +34,7 @@ export const onStart = async (
   app.use(cookieParser());
   app.use(json());
   app.use(urlencoded());
+  app.use(onLogRequests);
 
   // manage auth
   await initJWTKeys();                              // initialize JWT keys first
