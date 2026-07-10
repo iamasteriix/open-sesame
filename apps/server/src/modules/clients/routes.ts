@@ -1,20 +1,19 @@
 import { Router } from "express";
-import { registerClientController } from "./registerClient.controller.js";
-import { getClient } from "./manage-client.controller.js";
-import { updateClient } from "./updateClient.controller.js";
-import { revokeClientController } from "./revokeClient.controller.js";
+import { getClient, registerClient, revokeClientController, updateClient, } from "./client.controllers.js";
+import { makeOnValidateRequests } from "../../middleware/validation/onValidateRequests.js";
+import { getClientSchema, registerClientSchema, updateClientSchema } from "./validation.schemas.js";
 
 
 const clientRouter = Router();
 
 
-clientRouter.post('/register', registerClientController);
+clientRouter.post('/register', makeOnValidateRequests(registerClientSchema), registerClient);
 
 clientRouter.route('/:id')
-  .get(getClient)
-  .patch(updateClient);
+  .get(makeOnValidateRequests(getClientSchema), getClient)
+  .patch(makeOnValidateRequests(updateClientSchema), updateClient);
 
-clientRouter.post('/', revokeClientController);
+clientRouter.post('/:id/revoke', makeOnValidateRequests(getClientSchema), revokeClientController);
 
 
 export default clientRouter;

@@ -1,6 +1,6 @@
 import type { Provider } from "oidc-provider";
 import { Router } from "express";
-import { onVerifyClientSecret } from "../middleware/validation/onVerifyClientSecret.js";
+import { onVerifyClientSecret } from "../modules/clients/verify-client.middleware.js";
 import diagnosticsRouter from "../modules/diagnostics/routes.js";
 import interactionRouter from "../modules/interaction/routes.js";
 import clientRouter from "../modules/clients/routes.js";

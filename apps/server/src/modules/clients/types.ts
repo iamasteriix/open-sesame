@@ -14,7 +14,6 @@ type PatchStringArray = {
 export type RegisterClientParams = {
   name: string;
   logoUrl: string | null;
-  ownerId: string | null;
   redirectUris: string[];
   allowedGrants: string[] | null;
   allowedScopes: string[] | null;
@@ -25,10 +24,10 @@ export type UpdateClientParams = {
   id: string;
   name: string;
   logoUrl: string | null;
-  redirectUris: PatchStringArray;
-  allowedGrants: PatchStringArray;
-  allowedScopes: PatchStringArray;
-  isPublic: PatchBool;
+  redirectUrisDiff: PatchStringArray;
+  allowedGrantsDiff: PatchStringArray;
+  allowedScopesDiff: PatchStringArray;
+  isPublicDiff: PatchBool;
 };
 
 export type RegisteredClientOptions = {
@@ -47,24 +46,31 @@ export type RegisteredClientResult = {
   secret?: string;
 };
 
-export type RevokedClient = {
+export type RevokedClientOptions = {
   id: string;
   revoked_at: string;
 };
 
-export type ReqBodyRegisterClient = Request<{}, {}, RegisterClientParams>;
+export type ReqBodyRegisterClient = Request<{}, {}, {
+  name: string;
+  logo_url: string | null;
+  redirect_uris: string[];
+  allowed_grants: string[] | null;
+  allowed_scopes: string[] | null;
+  is_public: boolean;
+}>;
 
 export type ReqQueryGetClient = Request<{ id: string }>;
 
-export type ReqUpdateClient = Request<
+export type ReqGenericsUpdateClient = Request<
   { id: string },
   {},
   {
     name: string;
-    logoUrl: string | null;
-    redirectUris: PatchStringArray;
-    allowedGrants: PatchStringArray;
-    allowedScopes: PatchStringArray;
-    isPublic: PatchBool;
+    logo_url: string | null;
+    redirect_uris_diff: PatchStringArray;
+    allowed_grants_diff: PatchStringArray;
+    allowed_scopes_diff: PatchStringArray;
+    is_public_diff: PatchBool;
   }
 >;

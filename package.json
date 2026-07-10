@@ -4,8 +4,9 @@
   "scripts": {
     "dev:server": "doppler run -- docker compose up -d server",
     "dev:build": "doppler run -- docker compose build",
-    "bash:server": "doppler run -- docker compose exec server bash",
-    "bash:pg": "doppler run -- docker compose exec postgres psql -U opensesame -d opensesamedb"
+    "bash:server": "doppler run -- docker compose exec -it server bash",
+    "bash:pg": "doppler run -- docker compose exec -it postgres psql -U opensesame -d opensesamedb",
+    "bash:redis": "doppler run -- docker compose exec -it redis redis-cli"
   },
   "workspaces": [
     "apps/web",
