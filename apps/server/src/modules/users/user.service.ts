@@ -1,47 +1,66 @@
 import type { RegisterUserParams, UserOptions } from "./types.js";
-import { dbPool } from "../../config/db.js";
+import { execAsync } from "../../lib/postgres/client.js";
 
 
 
-export const createUser = async (input: RegisterUserParams): Promise<UserOptions> => {
-  const { rows, } = await dbPool.query({
-    text: `select create_user ($1, $2, $3)`,
-    values: [
-      input.username,
-      input.email,
-      input.phone ?? null,
-      input.secret,
-    ],
+export const createUser = async ({
+  handle,
+  email,
+  role,
+  credentialType,
+  credentialData,
+}: RegisterUserParams): Promise<UserOptions> => {
+  const data = await execAsync<UserOptions>({
+    statement: `select create_user ($p_handle, $p_email, $p_role, $p_cred_type, $p_cred_data)`,
+    params: {
+      p_handle: handle,
+      p_email: email,
+      p_role: role,
+      p_cred_type: credentialType,
+      p_cred_data: JSON.stringify(credentialData),
+    },
   });
-  return rows[0];
+  return data[0];
 }
 
 
 
 export const findUserByEmail = async (email: string): Promise<UserOptions | null> => {
-  const { rows, } = await dbPool.query({
-    text: `select find_user_by_email ($1)`,
-    values: [email],
+  const data = await execAsync<UserOptions>({
+    statement: `
+      select id, email, phone, handle, display_name, avatar_url
+      from users
+      where email := $email and deleted_at is null
+    `,
+    params: { email, },
   });
-  return rows[0];
+  return data[0];
 }
 
 
 
-export const findUserByUsername = async (username: string): Promise<UserOptions> => {
-  const { rows, } = await dbPool.query({
-    text: `select find_user_by_username ($1)`,
-    values: [username],
+export const findUserByHandle = async (handle: string): Promise<UserOptions> => {
+  const data = await execAsync<UserOptions>({
+    statement: `
+      select id, email, phone, handle, display_name, avatar_url
+      from users
+      where handle := $handle and deleted_at is null
+    `,
+    params: { handle, },
   });
-  return rows[0];
+  return data[0];
 }
 
 
 
 export const findUserById = async (userId: string): Promise<UserOptions> => {
-  const { rows } = await dbPool.query({
-    text: `select find_user_by_id ($1)`,
-    values: [userId],
+  const data = await execAsync<UserOptions>({
+    statement: `
+      select id, email, phone, handle, display_name, avatar_url
+      from users
+      where id := $id and deleted_at is null
+    `,
+    params: { id: userId, },
   });
-  return rows[0];
+  return data[0];
 }

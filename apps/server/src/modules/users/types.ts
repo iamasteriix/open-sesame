@@ -1,8 +1,9 @@
 export type RegisterUserParams = {
-  username: string;
+  handle: string;
   email: string;
-  secret: string;
-  phone?: string;
+  role: string;
+  credentialType: string;
+  credentialData: Record<string, unknown>,
 }
 
 export type UserOptions = {

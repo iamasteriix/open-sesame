@@ -1,10 +1,12 @@
-do $$
+create or replace function create_user (
+  p_handle text,
+  p_email text,
+  p_cred_type text,
+  p_cred_data jsob,
+  p_role text default 'user'
+)
+returns json as $$
 declare
-  p_handle text = 'bozamico';
-  p_email text = 'boz.amico@allfreemail.net';
-  p_role text = 'user';
-  p_cred_type text = 'totp';
-  p_cred_data jsonb = '{"secret": "LTSCK0GDMSEIULOVW0DG5YP8PO9ZXJOG"}'::jsonb;
   v_user_id uuid;
   v_role_id uuid;
   v_now timestamptz = now();
@@ -18,7 +20,6 @@ begin
   returning id
   into v_user_id;
 
-
   -- assign roles
   -- sus out role id
   select id
@@ -31,7 +32,6 @@ begin
   values (v_user_id, v_role_id)
   on conflict on constraint users_roles_user_role_key do nothing;
 
-
   -- save credential
   if not exists (
     -- totp can only be enrolled once
@@ -42,4 +42,8 @@ begin
     insert into user_credentials (user_id, type, data)
     values (v_user_id, p_cred_type, p_cred_data);
   end if;
-end $$;
+end;
+$$
+language plpgsql
+security invoker
+set search_path = 'public';
