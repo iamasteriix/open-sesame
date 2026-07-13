@@ -1,7 +1,7 @@
 import type { Response, NextFunction, } from "express";
-import type { ReqGenericsVerifySignup } from "./types.js";
+import type { ReqQueryVerifySignup } from "./types.js";
 import { ErrorCodes } from "@open-sesame/common";
-import { AppError, UnauthorizedError, ValidationError } from "../../lib/errors/errors.js";
+import { AppError, UnauthorizedError, } from "../../lib/errors/errors.js";
 import { consumeEphemeralToken, issueEphemeralToken } from "./tokens.service.js";
 import { createUser } from "../users/user.service.js";
 import * as constants from "./constants.js";
@@ -13,14 +13,13 @@ import * as constants from "./constants.js";
  * auth state until TOTP is enrolled.
  */
 export const verifySignupMagicToken = async (
-  request: ReqGenericsVerifySignup,
+  request: ReqQueryVerifySignup,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
 
     const { token, } = request.query;
-    if (!token) throw new ValidationError(constants.MISSING_PARAMS_MSG);
 
     // verify magic token
     const userIdentifiersStr = await consumeEphemeralToken(constants.MAGIC_LINK_PREFIX, token);
@@ -28,13 +27,19 @@ export const verifySignupMagicToken = async (
 
     // register user and persist TOTP secret credential
     const { username, email, secret, } = JSON.parse(userIdentifiersStr);
-    const user = await createUser({ username, email, secret, });
+    const user = await createUser({
+      username,
+      email,
+      role: 'user',
+      credentialType: 'totp',
+      credentialData: { secret, },
+    });
     if (!user) throw new AppError(ErrorCodes.internal.message, 500, ErrorCodes.internal.code);
 
     // issue MFA token
     const mfaToken = await issueEphemeralToken(constants.MFA_TOKEN_PREFIX, user.id, constants.MFA_TOKEN_TTL_SECS);
 
-    response.status(201).json({ mfaToken, });
+    response.status(201).json({ mfa_token: mfaToken, });
     return;
         
   } catch (error) {

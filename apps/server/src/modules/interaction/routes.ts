@@ -1,12 +1,12 @@
 import type { Provider } from "oidc-provider";
 import { Router } from "express";
-import { makeInteractionDispatch } from "./interaction-dispatch.controller.js";
+import { makeDispatchInteraction, } from "./interaction.controller.js";
 
 
 export default (oidcProvider: Provider): Router => {
   const router = Router();
 
-  router.get('/:uid', makeInteractionDispatch(oidcProvider));
+  router.get('/:uid', makeDispatchInteraction(oidcProvider));
 
   return router;
 }

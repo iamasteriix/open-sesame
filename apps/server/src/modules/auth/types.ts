@@ -1,5 +1,6 @@
 import type { Request } from "express";
 import type { Grant } from "oidc-provider";
+import type { UserRoles } from "../users/types.js";
 
 
 
@@ -8,73 +9,65 @@ type UserContacts =
   | { email: string; username?: never; }
   | { username: string; email: string; };
 
+
 export type AccessTokenPayload = {
   sub: string;
-  role: string;
+  roles: UserRoles[];
   jti: string;
 };
 
+
 export type RefreshTokenParams = {
   userId: string;
-  role: string;
+  roles: UserRoles[];
   newRefreshToken: string;
 };
+
 
 export type TOTPSecretOptions = {
   uri: string;
   secret: string;
 };
 
+
 export type OidcGrantType = Grant | undefined;
+
 
 export type OidcMissingScopesType = string[] | undefined;
 
-export type RedisPipelineExecType = [
-  [Error | null, string | null],
-  [Error | null, number],
-];
 
 export type ReqGenericsSignin = Request<
   {},
   {},
-  UserContacts,
+  { identifier: UserContacts; },
   { next?: string; }
 >;
 
-export type ReqGenericsVerifySignin = Request<
-  { uid: string },
-  unknown,
-  {
-    code?: string;
-    mfaToken: string;
-  },
-  { token?: string, }
+
+export type ReqQueryVerifySignin = Request<{}, {}, {}, { token: string; }>;
+
+
+export type ReqBodyVerifySignin = Request<{}, {}, {
+    code: string;
+    mfa_token: string;
+  }
 >;
+
 
 export type ReqBodyConfirmTotp = Request<{}, {}, {
   label: string;
   code: string;
 }>;
 
-export type ReqGenericsSignup = Request<
-  {},
-  {},
-  {
+
+export type ReqBodySignup = Request<{}, {}, {
     username: string;
     email: string;
-  },
-  { next?: string; }
+  }
 >;
 
-export type ReqGenericsVerifySignup = Request<
-  { uid: string },
-  unknown,
-  {
-    email?: string;
-    code?: string;
-    mfaToken?: string;
-  },
-  { token?: string, }
->;
+
+export type ReqQueryVerifySignup = Request<{}, {}, {}, { token: string; }>;
+
 
 export type ReqBodyRefreshToken = Request<{}, {}, { refresh_token: string; }>;

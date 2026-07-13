@@ -27,7 +27,6 @@ services:
     build:
       context: .
       target: postgres
-    command: postgres -c shared_preload_libraries=pg_cron -c cron.database_name=opensesamedb
     environment:
       POSTGRES_DB: opensesamedb
       POSTGRES_USER: opensesame

@@ -1,37 +1,37 @@
 import type { Provider } from "oidc-provider";
 import { Router } from "express";
-import { makeGetSigninDetails, submitSignin } from "./signin.controller.js";
+import { submitSignin } from "./signin.controller.js";
 import { makeVerifySigninTotp, verifySigninMagicToken } from "./verify-signin.controller.js";
-import { handleGetSignup, handleSubmitSignup, } from "./signup.controller.js";
-import { makeHandleAllowAccess, makeSubmitConsentController, } from "./allow.controller.js";
+import { handleSubmitSignup, } from "./signup.controller.js";
+import { makeSubmitConsentController, } from "./allow.controller.js";
 import { signoutController } from "./signout.controller.js";
 import { verifySignupMagicToken } from "./verify-signup.controller.js";
 import { refreshTokenController } from "./refresh-token.controller.js";
+import { makeOnValidateRequests } from "../../middleware/validation/onValidateRequests.js";
+import {
+  getVerifySigninSchema, refreshTokenSchema, signinSchema, signupSchema,
+  submitVerifySigninSchema,
+} from "./validation.schemas.js";
 
 
 
 export default (oidcProvider: Provider): Router => {
   const router = Router();
 
-  router.route('/signin')
-    .get(makeGetSigninDetails(oidcProvider))
-    .post(submitSignin);
+  router.post('/signin', makeOnValidateRequests(signinSchema), submitSignin);
 
   router.route('/signin/verify')
-    .get(verifySigninMagicToken)
-    .post(makeVerifySigninTotp(oidcProvider));
+    .get(makeOnValidateRequests(getVerifySigninSchema), verifySigninMagicToken)
+    .post(makeOnValidateRequests(submitVerifySigninSchema), makeVerifySigninTotp(oidcProvider));
 
-  router.route('/allow')
-    .get(makeHandleAllowAccess(oidcProvider))
-    .post(makeSubmitConsentController(oidcProvider));
+  router.post('/allow', makeSubmitConsentController(oidcProvider));
 
-  router.route('/signup')
-    .get(handleGetSignup)
-    .post(handleSubmitSignup);
+  router.post('/signup', makeOnValidateRequests(signupSchema), handleSubmitSignup);
+  router.get('/signup/verify', makeOnValidateRequests(getVerifySigninSchema), verifySignupMagicToken);
 
-  router.get('/signup/verify', verifySignupMagicToken);
-  router.post('/refresh', refreshTokenController);
-  router.post('/signout', signoutController);
+  router.post('/refresh', makeOnValidateRequests(refreshTokenSchema), refreshTokenController);
+  
+  router.post('/signout', makeOnValidateRequests(refreshTokenSchema), signoutController);
 
   return router;
 }

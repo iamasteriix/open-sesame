@@ -9,4 +9,16 @@ curl -sX PATCH http://localhost:5000/clients/019f4637-4fcf-792d-8419-99fd9c93678
 
 # revoke client
 curl -sX POST http://localhost:5000/clients/<id>/revoke -H "Content-Type: application/json" | jq
+
+# signin
+curl -sX POST http://localhost:5000/auth/signin -H "Content-Type: application/json" -d '{ "identifier": { "username": "bozamico" } }' | jq
+
+# verify signin
+curl -sX POST http://localhost:5000/auth/signin/verify -H "Content-Type: application/json" -d '{ "code": "123456", "mfa_token": "<token>" }' | jq
+
+# signup
+curl -sX POST http://localhost:5000/auth/signup -H "Content-Type: application/json" -d '{ "username": "goofball", "email": "lyswkkteijixyhifly@onldm.net" }' | jq
+
+# verify signup
+curl -sX POST http://localhost:5000/auth/signup/verify -H "Content-Type: application/json" -d '{ "username": "goofball", "email": "lyswkkteijixyhifly@onldm.net" }' | jq
 ```

@@ -8,6 +8,10 @@ export const ErrorCodes = {
     code: 'UNEXPECTED_ERROR',
     message: 'Unexpected error',
   },
+  badRequest: {
+    code: 'BAD_REQUEST',
+    message: 'Bad request',
+  },
 
   // Auth
   unauthorized: {
@@ -37,9 +41,5 @@ export const ErrorCodes = {
   validationError: {
     code: 'VALIDATION_ERROR',
     message: 'Validation error',
-  },
-  badPassword: {
-    code: 'BAD_PASSWORD',
-    message: 'Bad password',
   },
 } as const;

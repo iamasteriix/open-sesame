@@ -26,9 +26,9 @@ drop table if exists public.user_device_activity;
 drop table if exists public.user_devices;
 drop table if exists public.devices;
 
-drop index if exists public.users_roles_role_id_idx;
-drop index if exists public.users_roles_user_id_idx;
+drop index if exists public.user_roles_role_id_idx;
+drop index if exists public.user_roles_user_id_idx;
 drop index if exists public.users_deleted_at_idx;
-drop table if exists public.users_roles;
+drop table if exists public.user_roles;
 drop table if exists public.roles;
 drop table if exists public.users;

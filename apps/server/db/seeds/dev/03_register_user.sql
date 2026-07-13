@@ -1,6 +1,6 @@
 do $$
 declare
-  p_handle text = 'bozamico';
+  p_username text = 'bozamico';
   p_email text = 'boz.amico@allfreemail.net';
   p_role text = 'user';
   p_cred_type text = 'totp';
@@ -11,10 +11,10 @@ declare
 
 begin
   -- create user
-  insert into users (email, email_confirmed_at, handle)
-  values (p_email, v_now, p_handle)
-  on conflict on constraint users_handle_key do update
-  set handle = excluded.handle -- fake update to force return
+  insert into users (email, email_confirmed_at, username)
+  values (p_email, v_now, p_username)
+  on conflict on constraint users_username_key do update
+  set username = excluded.username -- fake update to force return
   returning id
   into v_user_id;
 
@@ -27,9 +27,9 @@ begin
   into v_role_id;
 
   -- it's roling time!
-  insert into users_roles (user_id, role_id)
+  insert into user_roles (user_id, role_id)
   values (v_user_id, v_role_id)
-  on conflict on constraint users_roles_user_role_key do nothing;
+  on conflict on constraint user_roles_user_role_key do nothing;
 
 
   -- save credential

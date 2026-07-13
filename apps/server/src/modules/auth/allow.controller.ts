@@ -5,25 +5,6 @@ import { UnauthorizedError } from "../../lib/errors/errors.js";
 
 
 
-export const makeHandleAllowAccess = (oidcProvider: Provider) => {
-  return async (
-    request: any,
-    response: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      
-      response.status(200).json({ foo: 'bar', });
-      return;
-
-    } catch (error) {
-      return next(error);
-    }
-  }
-}
-
-
-
 /**
  * When a user has already approved scopes for a client in a previous session, the oidc provider
  * stores that as a `Grant` and associates its id with the session. Subsequent authorizations

@@ -1,7 +1,8 @@
 import type { Response, NextFunction } from "express";
 import type { Provider } from "oidc-provider";
-import type { ReqGenericsVerifySignin, } from "./types.js";
-import { NotFoundError, UnauthorizedError, ValidationError } from "../../lib/errors/errors.js";
+import type { ReqBodyVerifySignin, ReqQueryVerifySignin, } from "./types.js";
+import { errors as oidcProviderErrors } from "oidc-provider";
+import { NotFoundError, UnauthorizedError, } from "../../lib/errors/errors.js";
 import { consumeEphemeralToken, issueEphemeralToken, signAccessToken } from "./tokens.service.js";
 import { findUserById, } from "../users/user.service.js";
 import { getTotpSecret, verifyTotpCode } from "./totp.service.js";
@@ -15,13 +16,12 @@ import * as constants from "./constants.js";
  * suspend the authentication flow until it is confirmed.
  */
 export const verifySigninMagicToken = async (
-    request: ReqGenericsVerifySignin,
+    request: ReqQueryVerifySignin,
     response: Response,
     next: NextFunction,
   ): Promise<void> => {
   try {
     const { token, } = request.query;
-    if (!token) throw new ValidationError(constants.MISSING_PARAMS_MSG);
 
     // verify magic token
     const userId = await consumeEphemeralToken(constants.MAGIC_LINK_PREFIX, token);
@@ -33,7 +33,7 @@ export const verifySigninMagicToken = async (
     // issue MFA token
     const mfaToken = await issueEphemeralToken(constants.MFA_TOKEN_PREFIX, user.id, constants.MFA_TOKEN_TTL_SECS);
     
-    response.status(200).json({ mfaToken, });
+    response.status(200).json({ mfa_token: mfaToken, });
     return;
 
   } catch (error) {
@@ -45,20 +45,21 @@ export const verifySigninMagicToken = async (
 
 /**
  * Open sesame!
+ * 
+ * @todo optimize away the multiple trips to the database
  */
 export const makeVerifySigninTotp = (oidcProvider: Provider) => {
   return async (
-    request: ReqGenericsVerifySignin,
+    request: ReqBodyVerifySignin,
     response: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
       
-      const { code, mfaToken } = request.body;
-      if (!code) throw new ValidationError(constants.MISSING_PARAMS_MSG);
+      const { code, mfa_token } = request.body;
       
       // consume MFA token
-      const userId = await consumeEphemeralToken(constants.MFA_TOKEN_PREFIX, mfaToken);
+      const userId = await consumeEphemeralToken(constants.MFA_TOKEN_PREFIX, mfa_token);
       if (!userId) throw new UnauthorizedError('MFA token is invalid or expired');
 
       // retrieve secret from credentials
@@ -74,8 +75,8 @@ export const makeVerifySigninTotp = (oidcProvider: Provider) => {
       if (!user) throw new NotFoundError('User not found');
 
       // issue auth tokens
-      const userStr = JSON.stringify({ userId: user.id, role: user.role, });
-      const accessToken = await signAccessToken(user.id, user.role);
+      const userStr = JSON.stringify({ userId: user.id, roles: user.roles, });
+      const accessToken = await signAccessToken(user.id, user.roles);
       const refreshToken = await issueEphemeralToken(constants.REFRESH_TOKEN_PREFIX, userStr, constants.REFRESH_TOKEN_TTL_SECS);
 
       response.status(200).json({
@@ -85,13 +86,14 @@ export const makeVerifySigninTotp = (oidcProvider: Provider) => {
         expires_in: constants.ACCESS_TOKEN_TTL_SECS,
       });
 
-      // continue with oidc
+      // check for oidc interaction
       const oidcDetails = await oidcProvider.interactionDetails(request, response);
-      if (oidcDetails !instanceof Error) {   
-        await oidcProvider.interactionFinished(request, response, {
-          login: { accountId: user.id, },
-        });
-      }
+      if (oidcDetails instanceof oidcProviderErrors.OIDCProviderError) throw oidcDetails;
+
+      // hand off auth to oidc provider
+      await oidcProvider.interactionFinished(request, response, {
+        login: { accountId: user.id, },
+      });
       return;
 
     } catch (error) {

@@ -1,6 +1,5 @@
 import type { Response, NextFunction } from "express";
-import type { ReqGenericsSignup } from "./types.js";
-import { ValidationError } from "../../lib/errors/errors.js";
+import type { ReqBodySignup } from "./types.js";
 import { buildTotpUri } from "./totp.service.js";
 import { issueEphemeralToken } from "./tokens.service.js";
 import { sendMagicLink } from "../../lib/email/send-email.js";
@@ -8,32 +7,14 @@ import * as constants from "./constants.js";
 
 
 
-export const handleGetSignup = async (
-  request: any,
-  response: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    
-    response.status(200).json({ foo: 'bar', });
-    return;
-
-  } catch (error) {
-    return next(error);
-  }
-}
-
-
-
 export const handleSubmitSignup = async (
-  request: ReqGenericsSignup,
+  request: ReqBodySignup,
   response: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
     
     const { username, email, } = request.body;
-    if (!username || !email) throw new ValidationError(constants.MISSING_PARAMS_MSG);
     
     const { uri, secret, } = await buildTotpUri(username); // build totp scheme
 

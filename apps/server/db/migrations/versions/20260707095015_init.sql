@@ -5,7 +5,7 @@ create table if not exists public.users (
   email_confirmed_at timestamptz null,
   phone text null,
   phone_confirmed_at timestamptz null,
-  handle text not null,
+  username text not null,
   display_name text null,
   avatar_url text null,
   created_at timestamptz not null default now(),
@@ -14,9 +14,9 @@ create table if not exists public.users (
   constraint users_pkey primary key (id),
   constraint users_email_key unique (email),
   constraint users_phone_key unique (phone),
-  constraint users_handle_key unique (handle),
+  constraint users_username_key unique (username),
   constraint users_phone_nonempty_check check (phone is null or length(trim(phone)) > 0),
-  constraint users_handle_nonempty_check check (length(trim(handle)) > 3 and length(trim(handle)) <= 36),
+  constraint users_username_nonempty_check check (length(trim(username)) > 3 and length(trim(username)) <= 36),
   constraint users_display_name_check check (
     display_name is null
     or (length(trim(display_name)) > 0 and char_length(display_name) <= 54)
@@ -38,14 +38,14 @@ create table if not exists public.roles (
 
 
 -- many-to-many relationships between users and roles
-create table if not exists public.users_roles (
+create table if not exists public.user_roles (
   id uuid not null default uuidv7(),
   user_id uuid not null,
   role_id uuid not null,
-  constraint users_roles_pkey primary key (id),
-  constraint users_roles_user_role_key unique (user_id, role_id),
-  constraint users_roles_user_id_fkey foreign key (user_id) references public.users (id) on delete cascade,
-  constraint users_roles_role_id_fkey foreign key (role_id) references public.roles (id) on delete cascade
+  constraint user_roles_pkey primary key (id),
+  constraint user_roles_user_role_key unique (user_id, role_id),
+  constraint user_roles_user_id_fkey foreign key (user_id) references public.users (id) on delete cascade,
+  constraint user_roles_role_id_fkey foreign key (role_id) references public.roles (id) on delete cascade
 );
 
 
@@ -59,8 +59,8 @@ where deleted_at is not null;
 
 
 -- apparently postgres does not auto-index foreign keys
-create index if not exists users_roles_user_id_idx on public.users_roles (user_id);
-create index if not exists users_roles_role_id_idx on public.users_roles (role_id);
+create index if not exists user_roles_user_id_idx on public.user_roles (user_id);
+create index if not exists user_roles_role_id_idx on public.user_roles (role_id);
 
 
 

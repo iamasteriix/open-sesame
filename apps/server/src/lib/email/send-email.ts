@@ -7,7 +7,7 @@ export const sendMagicLink = async (
   token: string
 ): Promise<void> => {
 
-  const url = `${env.ENDPOINT}/auth/?token=${token}`;
+  const url = `${env.ENDPOINT}/auth/signin/verify?token=${token}`;
 
   // @todo add email transport
   logger.info({ email, url, }, 'Magic link issued');

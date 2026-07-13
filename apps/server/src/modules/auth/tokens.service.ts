@@ -1,11 +1,11 @@
 import type { AccessTokenPayload, RefreshTokenParams } from "./types.js";
-import type { RedisPipelineExecType } from "./types.js";
+import type { UserRoles } from "../users/types.js";
 import { randomBytes } from "crypto";
 import { decodeJwt, jwtVerify, SignJWT } from "jose";
 import { redis } from "../../config/redis.js";
 import { env } from "../../config/env.js";
 import { getJWSigningKey, getJWVerifyKey } from "../../lib/jwtKeys/jwt-keys.js";
-import { ValidationError } from "../../lib/errors/errors.js";
+import { UnauthorizedError, ValidationError } from "../../lib/errors/errors.js";
 import * as constants from "./constants.js";
 
 
@@ -16,13 +16,13 @@ import * as constants from "./constants.js";
  */
 export const signAccessToken = async (
   subject: string,
-  role: string
+  roles: UserRoles[]
 ): Promise<string> => {
   const now = Math.floor(Date.now()/1000);
   const signingKey = getJWSigningKey();
   const jti = randomBytes(constants.TOKEN_BYTE_SIZE).toString('hex');
 
-  const jwt = new SignJWT({ role, })
+  const jwt = new SignJWT({ roles, })
     .setProtectedHeader({ alg: 'ES256' })
     .setSubject(subject)
     .setJti(jti)
@@ -37,14 +37,14 @@ export const signAccessToken = async (
 
 
 /**
- * Verifies and decodes a JWT access token, validating issuer and algorithm.
+ * Verifies and decodes a JWT access token, validating issuer and algorithm, and
+ * whether the token is blacklisted
  *
  * @returns {Promise<AccessTokenPayload>} Decoded payload with `sub`, `role`, and `jti` fields.
  * @throws {Error} If token is invalid, verification fails, issuer/algorithm mismatch, or claims are missing/malformed.
  */
 export const verifyAccessToken = async (token: string): Promise<AccessTokenPayload> => {
   const verifyKey = getJWVerifyKey();
-
   const { payload } = await jwtVerify(
     token,
     verifyKey, {
@@ -53,13 +53,16 @@ export const verifyAccessToken = async (token: string): Promise<AccessTokenPaylo
     });
   if (
     typeof payload.sub !== 'string' ||
-    typeof payload.role !== 'string' ||
-    typeof payload.jti !== 'string'
+    typeof payload.jti !== 'string' ||
+    !Array.isArray(payload.roles)
   ) throw new Error('Invalid token payload');
+
+  const isBlacklisted = await redis.exists(`${constants.BLACKLIST_TOKEN_PREFIX}${payload.jti}`);
+  if (isBlacklisted) throw new UnauthorizedError('Token has been revoked');
 
   return {
     sub: payload.sub,
-    role: payload.role,
+    roles: payload.roles,
     jti: payload.jti,
   };
 }
@@ -87,23 +90,34 @@ export const revokeAccessToken = async (token: string): Promise<void> => {
 
 /**
  * Removes the current token and issues a new one
- */
+ */  
 export const rotateRefreshToken = async (currentToken: string): Promise<RefreshTokenParams | null> => {
   const oldKey = `${constants.REFRESH_TOKEN_PREFIX}${currentToken}`;
-  const userStr = await redis.get(oldKey);
-  if (!userStr) return null;
-
-  await redis.del(oldKey);
-
   const newToken = randomBytes(constants.TOKEN_BYTE_SIZE).toString('hex');
   const newKey = `${constants.REFRESH_TOKEN_PREFIX}${newToken}`;
-  const { userId, role } = JSON.parse(userStr);
 
-  await redis.set(newKey, userStr, 'EX', constants.REFRESH_TOKEN_TTL_SECS);
-  
+  const userStr = await redis.eval(
+    `
+      local value = redis.call('GET', KEYS[1])
+      if not value then
+        return nil
+      end
+      redis.call('DEL', KEYS[1])
+      redis.call('SET', KEYS[2], value, 'EX', ARGV[1])
+      return value
+    `,
+    2,
+    oldKey,                           // KEYS[1]
+    newKey,                           // KEYS[2]
+    constants.REFRESH_TOKEN_TTL_SECS, // ARGV[1]
+  );
+
+  if (typeof userStr !== 'string') return null;
+  const { userId, roles, } = JSON.parse(userStr);
+
   return {
     userId,
-    role,
+    roles,
     newRefreshToken: newToken,
   };
 }
@@ -131,32 +145,24 @@ export const issueEphemeralToken = async (
 
 
 /**
- * Consumes a token by atomically retrieving and deleting it from Redis.
- * `pipeline().get().delete()` is critical here: It sends both commands to Redis in a single
- * round-trip and executes them sequentially. Running the commands separately leaves
- * a window where a second request could consume the token before the first deletes it.
+ * Consumes a token by atomically retrieving and deleting it from Redis to
+ * prevent a race condition where two requests consume the same token simultaneously.
  *
- * @param {string} token - Magic link token to consume.
  * @returns {Promise<string | null>} Value associated with the token, or null if token not found or expired.
- * @throws {Error} If Redis pipeline execution fails.
  */
 export const consumeEphemeralToken = async (
   prefix: string,
   token: string
 ): Promise<string | null> => {
-  const key = `${prefix}${token}`;
-
-  // atomically get and delete key - prevents a race condition where two
-  // requests consume the same token simultaneously
-  const [value] = await redis.pipeline().get(key).del(key).exec() as RedisPipelineExecType;
-
-  return value[1];
+  return await redis.getdel(`${prefix}${token}`);
 }
 
 
 
 /**
  * Removes ephemeral token from Redis
+ * 
+ * @returns {Promise<string | null>} Returns `'revoked'` on successful deletion, `null` if token did not exist.
  */
 export const revokeEphemeralToken = async (
   prefix: string,

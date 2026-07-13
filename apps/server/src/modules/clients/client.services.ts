@@ -5,26 +5,34 @@ import type {
   RevokedClientOptions,
   UpdateClientParams,
 } from "./types.js";
+import { DatabaseError } from "pg";
 import { randomBytes } from "crypto";
 import { hash } from "argon2";
 import { execAsync } from "../../lib/postgres/client.js";
+import { AppError } from "../../lib/errors/errors.js";
 import * as constants from "./constants.js";
 
 
 
 export const findClientById = async (id: string): Promise<RegisteredClientOptions | undefined> => {
-  const data = await execAsync<RegisteredClientOptions>({
-    name: 'find-client-by-id',
-    statement: `
-      select
-        client_id, name, logo_url, redirect_uris,
-        allowed_grants, allowed_scopes, created_at, updated_at
-      from oauth_clients
-      where id = $id and revoked_at is null
-    `,
-    params: { id },
-  });
-  return data[0];
+  try {
+    const data = await execAsync<RegisteredClientOptions>({
+      name: 'find-client-by-id',
+      statement: `
+        select
+          client_id, name, logo_url, redirect_uris,
+          allowed_grants, allowed_scopes, created_at, updated_at
+        from oauth_clients
+        where id = $id and revoked_at is null
+      `,
+      params: { id },
+    });
+    return data[0];
+
+  } catch (error) {
+    if (error instanceof DatabaseError) throw new AppError(error.message, 404, error.code);
+    throw error;
+  }
 }
 
 
@@ -50,37 +58,43 @@ export const submitClientData = async ({
     secretHash = await hash(rawSecret);
   }
 
-  const data = await execAsync<RegisteredClientOptions>({
-    name: 'register-oauth-client',
-    statement: `
-      insert into oauth_clients (
-        client_id, client_secret_hash, name, logo_url,
-        redirect_uris, allowed_grants, allowed_scopes, is_public
-      )
-      values (
-        $p_client_id, $p_client_secret_hash, $p_name, $p_logo_url,
-        $p_redirect_uris, $p_allowed_grants, $p_allowed_scopes, $p_is_public
-      )
-      returning
-        client_id, name, logo_url, redirect_uris,
-        allowed_grants, allowed_scopes, created_at, updated_at
-    `,
-    params: {
-      p_client_id: clientId,
-      p_client_secret_hash: secretHash,
-      p_name: name,
-      p_logo_url: logoUrl,
-      p_redirect_uris: redirectUris,
-      p_allowed_grants: allowedGrants,
-      p_allowed_scopes: allowedScopes,
-      p_is_public: isPublic,
-    },
-  });
-
-  return {
-    client: data[0],
-    secret: rawSecret,
-  };
+  try {
+    const data = await execAsync<RegisteredClientOptions>({
+      name: 'register-oauth-client',
+      statement: `
+        insert into oauth_clients (
+          client_id, client_secret_hash, name, logo_url,
+          redirect_uris, allowed_grants, allowed_scopes, is_public
+        )
+        values (
+          $p_client_id, $p_client_secret_hash, $p_name, $p_logo_url,
+          $p_redirect_uris, $p_allowed_grants, $p_allowed_scopes, $p_is_public
+        )
+        returning
+          client_id, name, logo_url, redirect_uris,
+          allowed_grants, allowed_scopes, created_at, updated_at
+      `,
+      params: {
+        p_client_id: clientId,
+        p_client_secret_hash: secretHash,
+        p_name: name,
+        p_logo_url: logoUrl,
+        p_redirect_uris: redirectUris,
+        p_allowed_grants: allowedGrants,
+        p_allowed_scopes: allowedScopes,
+        p_is_public: isPublic,
+      },
+    });
+  
+    return {
+      client: data[0],
+      secret: rawSecret,
+    };
+    
+  } catch (error) {
+    if (error instanceof DatabaseError) throw new AppError(error.message, 404, error.code);
+    throw error;
+  }
 }
 
 
@@ -110,43 +124,53 @@ export const updateClientData = async ({
     secretHash = await hash(rawSecret);
   }
 
-  const data = await execAsync<RegisteredClientOptions>({
-    statement: `
-      select update_oauth_client (
-        $p_id, $p_redirect_uris_add, $p_redirect_uris_remove,
-        $p_allowed_grants_add, $p_allowed_grants_remove, $p_allowed_scopes_add,
-        $p_allowed_scopes_remove, $p_is_public, $p_secret_hash, $p_name,
-        $p_logo_url
-      )
-    `,
-    params: {
-      p_id: id,
-      p_secret_hash: secretHash,
-      p_redirect_uris_add: redirectUrisDiff?.add,
-      p_redirect_uris_remove: redirectUrisDiff?.remove,
-      p_allowed_grants_add: allowedGrantsDiff?.add,
-      p_allowed_grants_remove: allowedGrantsDiff?.remove,
-      p_allowed_scopes_add: allowedScopesDiff?.add,
-      p_allowed_scopes_remove: allowedScopesDiff?.remove,
-      p_is_public: isPublicDiff.incoming,
-      p_name: name,
-      p_logo_url: logoUrl,
-    },
-  });
-
-  return {
-    client: data[0],
-    secret: rawSecret,
-  };
+  try {
+    const data = await execAsync<{ data: RegisteredClientOptions }>({
+      statement: `
+        select update_oauth_client (
+          $p_id, $p_redirect_uris_add, $p_redirect_uris_remove,
+          $p_allowed_grants_add, $p_allowed_grants_remove, $p_allowed_scopes_add,
+          $p_allowed_scopes_remove, $p_is_public, $p_secret_hash, $p_name,
+          $p_logo_url
+        ) as data
+      `,
+      params: {
+        p_id: id,
+        p_secret_hash: secretHash,
+        p_redirect_uris_add: redirectUrisDiff?.add,
+        p_redirect_uris_remove: redirectUrisDiff?.remove,
+        p_allowed_grants_add: allowedGrantsDiff?.add,
+        p_allowed_grants_remove: allowedGrantsDiff?.remove,
+        p_allowed_scopes_add: allowedScopesDiff?.add,
+        p_allowed_scopes_remove: allowedScopesDiff?.remove,
+        p_is_public: isPublicDiff.incoming,
+        p_name: name,
+        p_logo_url: logoUrl,
+      },
+    });
+  
+    const client = data[0].data;
+    const secret = client.client_id === rawSecret ? rawSecret : undefined; // wipe out new secret if client was already confidential
+  
+    return { client, secret, };
+    
+  } catch (error) {
+    if (error instanceof DatabaseError) throw new AppError(error.message, 404, error.code);
+    throw error;
+  }
 }
 
 
 
 export const revokeClient = async (id: string): Promise<RevokedClientOptions | undefined> => {
-  const data = await execAsync<RevokedClientOptions>({
-    statement: `select revoke_oauth_client ($p_id)`,
-    params: { p_id: id, },
-  });
-
-  return data[0];
+  try {
+    const row = await execAsync<{ data: RevokedClientOptions }>({
+      statement: `select revoke_oauth_client ($p_id) as data`,
+      params: { p_id: id, },
+    });
+    return row[0].data;
+  } catch (error) {
+    if (error instanceof DatabaseError) throw new AppError(error.message, 404, error.code);
+    throw error;
+  }
 }

@@ -10,7 +10,7 @@ import { AppError } from "../../lib/errors/errors.js";
  * where the first-party auth flow and the provider's interactions are flattened into
  * a unified experience.
  */
-export const makeInteractionDispatch = (oidcProvider: Provider) => {
+export const makeDispatchInteraction = (oidcProvider: Provider) => {
   return async (
     request: Request,
     response: Response,

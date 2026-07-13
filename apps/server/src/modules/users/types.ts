@@ -1,5 +1,7 @@
+export type UserRoles = 'admin' | 'user';
+
 export type RegisterUserParams = {
-  handle: string;
+  username: string;
   email: string;
   role: string;
   credentialType: string;
@@ -12,6 +14,6 @@ export type UserOptions = {
   phone: string | null;
   username: string;
   display_name: string | null;
-  role: 'user' | 'admin';
-  deleted_at: Date | null;
+  avatar_url: string | null;
+  roles: UserRoles[];
 };

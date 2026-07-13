@@ -1,5 +1,4 @@
 import type { NextFunction, Response, } from "express";
-import type { Provider } from "oidc-provider";
 import type { ReqGenericsSignin, } from "./types.js";
 import { ValidationError } from "../../lib/errors/errors.js";
 import { findUserByEmail, findUserByUsername, } from "../users/user.service.js";
@@ -9,39 +8,15 @@ import * as constants from "./constants.js";
 
 
 
-export const makeGetSigninDetails = (oidcProvider: Provider) => {
-  return async (
-    request: any,
-    response: Response,
-    next: NextFunction,
-  ) => {
-    try {
-      let details;
-      try {
-        details = await oidcProvider.interactionDetails(request, response);
-      } catch (error) {
-        console.log(error);
-      }
-      
-      response.status(200).json(request.cookies);
-      return;
-
-    } catch (error) {
-      return next(error);
-    }
-  }
-}
-
-
-
 export const submitSignin = async (
     request: ReqGenericsSignin,
     response: Response,
     next: NextFunction,
   ): Promise<void> => {
   try {
-    const { username, email, } = request.body;
-    if (!username && !email) throw new ValidationError(constants.MISSING_PARAMS_MSG);
+    const {
+      identifier: { username, email },
+    } = request.body;
 
     // find user
     let user;

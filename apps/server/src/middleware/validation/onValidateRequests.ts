@@ -26,7 +26,12 @@ export const makeOnValidateRequests = (input: SchemaOptions) => {
     try {
       for (const generic of GENERICS) {
         const schema = input[generic];
-        if (schema) await schema.validate(request[generic]);
+        if (schema) {
+          await schema.validate(request[generic], {
+            strict: true,
+            stripUnknown: true,
+          });
+        }
       }
       return next();
     } catch (error: unknown) {
