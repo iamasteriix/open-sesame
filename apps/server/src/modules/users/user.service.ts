@@ -27,10 +27,18 @@ export const createUser = async ({
 
 export const findUserByEmail = async (email: string): Promise<UserOptions | null> => {
   const data = await execAsync<UserOptions>({
+    name: 'find-user-by-email',
     statement: `
-      select id, email, phone, handle, display_name, avatar_url
-      from users
-      where email := $email and deleted_at is null
+      select u.id, u.email, u.phone, u.handle, u.display_name, u.avatar_url, urr.roles
+      from users u
+      join lateral (
+        select array_agg (r.slug order by r.slug) as roles
+        from roles r
+        join users_roles ur on ur.role_id = r.id
+        where ur.user_id = u.id
+        group by ur.user_id
+      ) urr on true
+      where u.email := $email and u.deleted_at is null
     `,
     params: { email, },
   });
@@ -41,10 +49,18 @@ export const findUserByEmail = async (email: string): Promise<UserOptions | null
 
 export const findUserByHandle = async (handle: string): Promise<UserOptions> => {
   const data = await execAsync<UserOptions>({
+    name: 'find-user-by-handle',
     statement: `
-      select id, email, phone, handle, display_name, avatar_url
-      from users
-      where handle := $handle and deleted_at is null
+      select u.id, u.email, u.phone, u.handle, u.display_name, u.avatar_url, urr.roles
+      from users u
+      join lateral (
+        select array_agg (r.slug order by r.slug) as roles
+        from roles r
+        join users_roles ur on ur.role_id = r.id
+        where ur.user_id = u.id
+        group by ur.user_id
+      ) urr on true
+      where u.handle := $handle and u.deleted_at is null
     `,
     params: { handle, },
   });
@@ -55,10 +71,18 @@ export const findUserByHandle = async (handle: string): Promise<UserOptions> => 
 
 export const findUserById = async (userId: string): Promise<UserOptions> => {
   const data = await execAsync<UserOptions>({
+    name: 'find-user-by-id',
     statement: `
-      select id, email, phone, handle, display_name, avatar_url
-      from users
-      where id := $id and deleted_at is null
+      select u.id, u.email, u.phone, u.handle, u.display_name, u.avatar_url, urr.roles
+      from users u
+      join lateral (
+        select array_agg (r.slug order by r.slug) as roles
+        from roles r
+        join users_roles ur on ur.role_id = r.id
+        where ur.user_id = u.id
+        group by ur.user_id
+      ) urr on true
+      where u.id := $id and u.deleted_at is null
     `,
     params: { id: userId, },
   });
